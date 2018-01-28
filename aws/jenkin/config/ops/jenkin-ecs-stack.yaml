@@ -1,4 +1,3 @@
-template_path: templates/ossbackbone.json
-
+template_path: templates/jenkin-ecs-stack.json
 parameters:
   KeyName: mykey
