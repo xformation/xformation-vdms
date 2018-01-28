@@ -1,3 +1,4 @@
 template_path: templates/jenkins-ecs-stack.json
 parameters:
   KeyName: mykey
+  DockerImage: papu/xformation_jenkin
