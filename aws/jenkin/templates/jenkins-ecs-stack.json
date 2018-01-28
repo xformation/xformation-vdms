@@ -431,6 +431,10 @@
               {
                 "SourceVolume": "data-volume",
                 "ContainerPath": "/var/jenkins_home"
+              },
+              {
+                "SourceVolume": "docker-handle",
+                "ContainerPath": "/var/run/docker.sock"
               }
             ],
             "Essential": true,
@@ -456,6 +460,12 @@
               "SourcePath": "/data/"
             },
             "Name": "data-volume"
+          },
+          {
+            "Host": {
+              "SourcePath": "/var/run/docker.sock"
+            },
+            "Name": "docker-handle"
           }
         ]
       }
