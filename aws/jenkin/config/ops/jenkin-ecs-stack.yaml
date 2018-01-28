@@ -1,0 +1,4 @@
+template_path: templates/ossbackbone.json
+
+parameters:
+  KeyName: mykey
