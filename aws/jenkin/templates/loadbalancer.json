@@ -45,6 +45,7 @@
                 "Name": {
                     "Fn::Sub": "${ProductName}-${EnvironmentName}-alb"
                 },
+                "Scheme": "internet-facing",
                 "Subnets": {
                     "Ref": "Subnets"
                 }, 
