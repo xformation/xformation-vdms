@@ -114,7 +114,9 @@ pipeline {
                     if(isDev == 'true') {
                         try {
                             dir('aws/synektiks-website') {
-                                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) {                                    
+                                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) { 
+                                    sh "pwd"
+                                    sh "ls"                                   
                                     sh "sceptre --dir deployment/ launch-stack dev mainservice"
                                 }
                             }
