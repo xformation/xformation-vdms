@@ -97,6 +97,7 @@ pipeline {
         }
         stage('PullDeploymentArtifacts') {
             steps { 
+                step([$class:'WsCleanup'])
                 script {
                     try {
                         git url: 'https://github.com/xformation/xformation-vdms.git'
