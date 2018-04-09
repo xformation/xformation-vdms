@@ -114,7 +114,7 @@ pipeline {
                 script {
                     if(isDev == 'true') {
                         try {
-                            dir('aws/synektiks-website') {
+                            dir('aws/synectiks-website') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) { 
                                     sh "pwd"
                                     sh "ls"                                   
@@ -166,7 +166,7 @@ pipeline {
                     echo "Deploying in Stage" 
                     if(isStage == 'true') {
                         try {
-                            dir('aws/synektiks-website') {
+                            dir('aws/synectiks-website') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-stage']]) {                                    
                                     sh "sceptre --dir deployment/ launch-stack stage mainservice"
                                 }
