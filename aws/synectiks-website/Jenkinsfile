@@ -135,7 +135,7 @@ pipeline {
                 script {
                     if(isTest == 'true') {
                         try {
-                            dir('aws/synektiks-website') {
+                            dir('aws/synectiks-website') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-test']]) {                                    
                                     sh "sceptre --dir deployment/ launch-stack test mainservice"
                                 }
