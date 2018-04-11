@@ -210,7 +210,7 @@
         ],
         "Policies": [
           {
-            "PolicyName": "product-service-policies",
+            "PolicyName": "website-service-policies",
             "PolicyDocument": {
               "Version": "2012-10-17",
               "Statement": [

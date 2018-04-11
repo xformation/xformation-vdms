@@ -6,7 +6,3 @@ parameters:
   Cluster: !stack_output ecscluster::Cluster
   Listener: !stack_output loadbalancer::Listener
   LoadbalancerUrl:  !stack_output loadbalancer::LoadBalancerUrl
-  DBHost:  !stack_output rds::MasterHosturl
-  DBUser: root
-  DBPassword: password
-  UploadDir: /opt/data
