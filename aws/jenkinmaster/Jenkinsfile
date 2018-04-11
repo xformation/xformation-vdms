@@ -5,7 +5,7 @@ pipeline {
     }
     agent any
     environment { 
-        IMAGE_NAME  = 'synectiks-website'
+        IMAGE_NAME  = 'jenkin-master'
         REGISTRY =  'papu'
         VERSION = 'latest'
     }
@@ -52,7 +52,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('synectiks-website') {
+                        dir('jenkin') {
                             sh "make image"
                          }
                     } catch (Exception e) {
@@ -67,7 +67,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('synectiks-website') {
+                        dir('jenkin') {
                             echo "To Do implement this"
                         }
                     } catch (Exception e) {
@@ -82,7 +82,7 @@ pipeline {
             steps {
                 script { 
                         try {
-                                dir('synectiks-website') {
+                                dir('jenkin') {
                                         //sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
                                         sh 'docker login -u papu -p jaya8668'
                                         sh "make publish"
@@ -114,9 +114,9 @@ pipeline {
                 script {
                     if(isDev == 'true') {
                         try {
-                            dir('aws/synectiks-website') {
+                            dir('aws/jenkinmaster') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) { 
-                                    sh "sceptre --dir deployment/ launch-stack dev website"
+                                    sh "sceptre --dir deployment/ launch-stack dev jenkin-master"
                                 }
                             }
                         } catch (Exception e) {
@@ -133,9 +133,9 @@ pipeline {
                 script {
                     if(isTest == 'true') {
                         try {
-                            dir('aws/synectiks-website') {
+                            dir('aws/jenkinmaster') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-test']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack test website"
+                                    sh "sceptre --dir deployment/ launch-stack test jenkin-master"
                                 }
                             }                           
                         } catch (Exception e) {
@@ -164,9 +164,9 @@ pipeline {
                     echo "Deploying in Stage" 
                     if(isStage == 'true') {
                         try {
-                            dir('aws/synectiks-website') {
+                            dir('aws/jenkinmaster') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-stage']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack stage website"
+                                    sh "sceptre --dir deployment/ launch-stack stage jenkin-master"
                                 }
                             }                           
                         } catch (Exception e) {
@@ -195,7 +195,7 @@ pipeline {
                 script {
                     if(isProd == 'true') {
                         try {
-                            dir('aws/synectiks-website') {
+                            dir('aws/jenkinmaster') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-prod']]) {                                    
                                     sh "sceptre --dir deployment/ launch-stack prod website"
                                 }
