@@ -1,0 +1,291 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "This template deploys service to an ECS cluster ",
+    "Parameters": {
+      "ProductName": {
+        "Description":
+          "The Product Name, that we tag with every resource , so that we can track resources for products",
+        "Type": "String"
+      },
+      "EnvironmentName": {
+        "Description":
+          "An environment name that will be prefixed to resource names",
+        "Type": "String"
+      },
+      "VPC": {
+        "Description": "Choose which VPC this ECS cluster should be deployed to",
+        "Type": "AWS::EC2::VPC::Id"
+      },
+      "Cluster": {
+        "Description": "Choose which VPC this ECS cluster should be deployed to",
+        "Type": "String"
+      },
+      "DesiredCount": {
+        "Description":
+          "How many instances of this task should we run across our cluster?",
+        "Type": "Number",
+        "Default": 1
+      },
+      "Listener": {
+        "Description": "The Application Load Balancer listener to register with",
+        "Type": "String"
+      },
+      "Path": {
+        "Description": "The Application Load Balancer listener to register with",
+        "Type": "String",
+        "Default": "/*"
+      },
+      "HostHeader": {
+        "Description": "The Application Load Balancer listener to register with",
+        "Type": "String",
+        "Default": "ci.synectiks.com"
+      },
+      "LoadbalancerUrl": {
+        "Description": "The Application Load Balancer listener to register with",
+        "Type": "String"
+      },
+      "EcrUrl": {
+        "Description": "ECR URL",
+        "Type": "String",
+        "Default": "papu"
+      },
+      "ServiceName": {
+        "Description": "The service name of the service",
+        "Type": "String",
+        "Default": "jenkin-master"
+      },
+      "VERSION": {
+        "Description": "Image Version",
+        "Type": "String",
+        "Default": "latest"
+      }
+    },
+    "Resources": {
+      "Service": {
+        "Type": "AWS::ECS::Service",
+        "DependsOn": "ListenerRule",
+        "Properties": {
+          "Cluster": {
+            "Ref": "Cluster"
+          },
+          "DesiredCount": {
+            "Ref": "DesiredCount"
+          },
+          "LoadBalancers": [
+            {
+              "ContainerName": "jenkin-master",
+              "ContainerPort": 8080,
+              "TargetGroupArn": {
+                "Ref": "TargetGroup"
+              }
+            }
+          ],
+          "Role": {
+            "Ref": "ServiceRole"
+          },
+          "ServiceName": "jenkin-master",
+          "TaskDefinition": {
+            "Ref": "TaskDefinition"
+          }
+        }
+      },
+      "TaskDefinition": {
+        "Type": "AWS::ECS::TaskDefinition",
+        "Properties": {
+          "Family": "jenkin-master",
+          "ContainerDefinitions": [
+            {
+              "Name": "jenkin-master",
+              "Image": {"Fn::Sub": "${EcrUrl}/${ServiceName}:${VERSION}"},
+              "MountPoints": [
+                    {
+                    "SourceVolume": "data-volume",
+                    "ContainerPath": "/var/jenkins_home"
+                    },
+                    {
+                    "SourceVolume": "docker-handle",
+                    "ContainerPath": "/var/run/docker.sock"
+                    }
+                ],
+                "PortMappings": [
+                    {
+                        "HostPort": 8080,
+                        "ContainerPort": 8080,
+                        "Protocol": "tcp"
+                    },
+                    {
+                        "HostPort": 50000,
+                        "ContainerPort": 50000,
+                        "Protocol": "tcp"
+                    }
+                ],
+                "Essential": true,
+                "Cpu": 1024,
+                "MemoryReservation": 992,    
+                "LogConfiguration": {
+                    "LogDriver": "awslogs",
+                    "Options": {
+                    "awslogs-group": {
+                        "Ref": "AWS::StackName"
+                    },
+                    "awslogs-region": {
+                        "Ref": "AWS::Region"
+                    }
+                    }
+                }
+            }
+          ],
+          "Volumes": [
+            {
+              "Host": {
+                "SourcePath": "/data/jenkin_home"
+              },
+              "Name": "data-volume"
+            },
+            {
+              "Host": {
+                "SourcePath": "/var/run/docker.sock"
+              },
+              "Name": "docker-handle"
+            }
+          ]
+          }
+      },
+      "ListenerRule": {
+        "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
+        "Properties": {
+          "Actions": [
+            {
+              "TargetGroupArn": {
+                "Ref": "TargetGroup"
+              },
+              "Type": "forward"
+            }
+          ],
+          "Conditions": [
+            {
+              "Field": "host-header",
+              "Values": [
+                {
+                  "Ref": "HostHeader"
+                }
+              ]
+            },
+            {
+                "Field": "path-pattern",
+                "Values": [
+                  {
+                    "Ref": "Path"
+                  }
+                ]
+              }
+  
+          ],
+          "ListenerArn": {
+            "Ref": "Listener"
+          },
+          "Priority": 2
+        }
+      },
+      "TargetGroup": {
+        "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+        "Properties": {
+          "HealthCheckIntervalSeconds": 10,
+          "HealthCheckPath": "/login",
+          "HealthCheckProtocol": "HTTP",
+          "HealthCheckTimeoutSeconds": 5,
+          "HealthyThresholdCount": 2,
+          "Matcher": {
+            "HttpCode": "200-299"
+          },
+          "Name": {
+            "Fn::Sub": "${ProductName}-${EnvironmentName}-master-TG"
+          },
+          "Port": 8080,
+          "Protocol": "HTTP",
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": {
+                "Fn::Sub": "${ProductName}.${EnvironmentName}-Jenkin-Master-TG"
+              }
+            }
+          ],
+          "VpcId": {
+            "Ref": "VPC"
+          }
+        }
+      },
+      "ServiceRole": {
+        "Type": "AWS::IAM::Role",
+        "Properties": {
+          "RoleName": {
+            "Fn::Sub": "ecs-service-${AWS::StackName}"
+          },
+          "Path": "/",
+          "ManagedPolicyArns": [
+            "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess",
+            "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role",
+            "arn:aws:iam::aws:policy/AmazonEC2ContainerServiceFullAccess",
+            "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+          ],
+          "Policies": [
+            {
+              "PolicyName": "website-service-policies",
+              "PolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Action": [
+                      "ec2:AuthorizeSecurityGroupIngress",
+                      "ec2:Describe",
+                      "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+                      "elasticloadbalancing:Describe",
+                      "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+                      "elasticloadbalancing:DeregisterTargets",
+                      "elasticloadbalancing:DescribeTargetGroups",
+                      "elasticloadbalancing:DescribeTargetHealth",
+                      "elasticloadbalancing:RegisterTargets"
+                    ],
+                    "Resource": "*"
+                  }
+                ]
+              }
+            }
+          ],
+          "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": "ecs.amazonaws.com"
+                },
+                "Action": "sts:AssumeRole"
+              }
+            ]
+          }
+        },
+        "Metadata": {}
+      },
+      "CloudWatchLogsGroup": {
+        "Type": "AWS::Logs::LogGroup",
+        "Properties": {
+          "LogGroupName": {
+            "Ref": "AWS::StackName"
+          },
+          "RetentionInDays": 365
+        }
+      }
+    },
+    "Outputs": {
+      "MainService": {
+        "Description": "A reference to the Service",
+        "Value": {
+          "Ref": "Service"
+        }
+      }
+    }
+  }
+  
