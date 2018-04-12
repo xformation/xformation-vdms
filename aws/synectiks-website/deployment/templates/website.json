@@ -59,6 +59,11 @@
       "Type": "String",
       "AllowedPattern": "[a-zA-Z0-9/]+",
       "Default": "/opt/data"
+    },
+    "HostHeader": {
+      "Description": "The Application Load Balancer listener to register with",
+      "Type": "String",
+      "Default": "ci.synectiks.com"
     }
   },
   "Resources": {
@@ -152,10 +157,10 @@
         ],
         "Conditions": [
           {
-            "Field": "path-pattern",
+            "Field": "host-header",
             "Values": [
               {
-                "Ref": "Path"
+                "Ref": "HostHeader"
               }
             ]
           }
