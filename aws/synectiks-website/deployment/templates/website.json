@@ -30,11 +30,6 @@
       "Description": "The Application Load Balancer listener to register with",
       "Type": "String"
     },
-    "Path": {
-      "Description": "The Application Load Balancer listener to register with",
-      "Type": "String",
-      "Default": "*/*"
-    },
     "LoadbalancerUrl": {
       "Description": "The Application Load Balancer listener to register with",
       "Type": "String"
@@ -53,12 +48,6 @@
       "Description": "Image Version",
       "Type": "String",
       "Default": "latest"
-    },
-    "UploadDir": {
-      "Description": "The directory where files will be uploaded",
-      "Type": "String",
-      "AllowedPattern": "[a-zA-Z0-9/]+",
-      "Default": "/opt/data"
     },
     "HostHeader": {
       "Description": "The Application Load Balancer listener to register with",
