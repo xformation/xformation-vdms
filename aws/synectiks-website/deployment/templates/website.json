@@ -103,11 +103,6 @@
           {
             "Name": "synectiks-website",
             "Image": {"Fn::Sub": "${EcrUrl}/${ServiceName}:${VERSION}"},
-            "MountPoints": [
-              {
-                "SourceVolume": "my-vol",
-                "ContainerPath": "/opt/data"
-              }],
             "PortMappings": [
               {
                 "ContainerPort": 80
@@ -116,12 +111,6 @@
             "Cpu":  "512",
             "Memory": "512",
             "Essential": "true",
-            "Environment": [
-              {
-                "Name": "UploadDir",
-                "Value": { "Ref": "UploadDir"}
-              }
-            ],
             "LogConfiguration": {
               "LogDriver": "awslogs",
               "Options": {
@@ -134,14 +123,7 @@
               }
             }
           }
-        ],
-        "Volumes": [
-          {
-            "Host": {
-              "SourcePath": "/mnt/efs"
-            },
-            "Name": "my-vol"
-          }]
+        ]
       }
     },
     "ListenerRule": {
@@ -191,7 +173,7 @@
           {
             "Key": "Name",
             "Value": {
-              "Fn::Sub": "${ProductName}.${EnvironmentName}-Main-TG"
+              "Fn::Sub": "${ProductName}.${EnvironmentName}-website-TG"
             }
           }
         ],

@@ -217,16 +217,7 @@
                 ]
             }
         },
-        "MasterHosturl": {
-            "Description": "Master Host uri",
-            "Value": {
-                "Fn::GetAtt": [
-                    "RDSDBInstance1",
-                    "Endpoint.Address"
-                ]
-            }
-        },
-        "MasterJDBCConnectionString": {
+        "JDBCConnectionStringPrefix": {
             "Description": "JDBC connection string for the master database",
             "Value": {
                 "Fn::Join": [
@@ -234,20 +225,16 @@
                         "jdbc:mysql://",
                         {
                             "Fn::GetAtt": [
-                                "RDSDBInstance1",
+                                "RDSCluster",
                                 "Endpoint.Address"
                             ]
                         },
                         ":",
                         {
                             "Fn::GetAtt": [
-                                "RDSDBInstance1",
+                                "RDSCluster",
                                 "Endpoint.Port"
                             ]
-                        },
-                        "/",
-                        {
-                            "Ref": "DBName"
                         }
                     ]
                 ]

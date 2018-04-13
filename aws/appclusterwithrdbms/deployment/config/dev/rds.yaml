@@ -6,7 +6,7 @@ parameters:
   PrivateSubnets: !stack_output backbone::PrivateSubnets
   JumpboxSecurityGroup: !stack_output securitygroups::JumpboxSecurityGroup
   EcsHostSecurityGroup: !stack_output securitygroups::EcsHostSecurityGroup
-  DBName: "main"
-  DBUser: "root"
-  DBPassword: "password"
+  DBName: "StartupDB"
+  DBUser: "postgres"
+  DBPassword: "postgres"
   DBInstanceClass: "db.r4.large"
