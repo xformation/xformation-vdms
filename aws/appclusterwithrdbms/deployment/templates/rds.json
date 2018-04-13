@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "AWS CloudFormation Template RDS_MySQL_With_Read_Replica: The create a highly-available, RDS DBInstance with a read replica.",
+    "Description": "AWS CloudFormation Template for Aurora Postgresql: This create a aurora posthresql basic database ",
     "Parameters": {
         "ProductName": {
             "Description": "The Product Name, that we tag with every resource , so that we can track resources for products",
