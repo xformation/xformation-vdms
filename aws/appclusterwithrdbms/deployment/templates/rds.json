@@ -222,7 +222,7 @@
             "Value": {
                 "Fn::Join": [
                     "", [
-                        "jdbc:mysql://",
+                        "jdbc:postgresql://",
                         {
                             "Fn::GetAtt": [
                                 "RDSCluster",
