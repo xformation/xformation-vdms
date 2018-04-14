@@ -304,14 +304,14 @@
                   "Ref": "AWS::Region"
                 },
                 "\n",
-                "mkdir /mnt/efs\n",
+                "mkdir /data\n",
                 "EFS_FILE_SYSTEM_ID=",
                 {
                   "Ref": "FileSystem"
                 },
                 "\n",
                 "DIR_SRC=$EC2_AVAIL_ZONE.$EFS_FILE_SYSTEM_ID.efs.$EC2_REGION.amazonaws.com\n",
-                "DIR_TGT=/mnt/efs\n",
+                "DIR_TGT=/data\n",
                 "JENKIN_HOME=/data/jenkin_home\n",
                 "JIRA_HOME=/data/jira_home\n",
                 "mkdir $DIR_TGT\n",                
