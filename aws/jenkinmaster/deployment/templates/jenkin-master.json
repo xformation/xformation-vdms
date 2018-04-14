@@ -30,11 +30,6 @@
         "Description": "The Application Load Balancer listener to register with",
         "Type": "String"
       },
-      "Path": {
-        "Description": "The Application Load Balancer listener to register with",
-        "Type": "String",
-        "Default": "/*"
-      },
       "HostHeader": {
         "Description": "The Application Load Balancer listener to register with",
         "Type": "String",
@@ -170,16 +165,7 @@
                   "Ref": "HostHeader"
                 }
               ]
-            },
-            {
-                "Field": "path-pattern",
-                "Values": [
-                  {
-                    "Ref": "Path"
-                  }
-                ]
-              }
-  
+            }
           ],
           "ListenerArn": {
             "Ref": "Listener"
