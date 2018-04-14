@@ -78,6 +78,11 @@
       "Description": "Image Version",
       "Type": "String",
       "Default": "latest"
+    },
+    "HostHeader": {
+      "Description": "The Application Load Balancer listener to register with",
+      "Type": "String",
+      "Default": "servicedesk.synectiks.com"
     }
   },
   "Resources": {
