@@ -120,7 +120,7 @@
         "Family": "jira-service",
         "ContainerDefinitions": [
           {
-            "Name": "journal-service",
+            "Name": "jira-service",
             "Image": {"Fn::Sub": "${EcrUrl}/${ServiceName}:${VERSION}"},
             "MountPoints": [
               {
