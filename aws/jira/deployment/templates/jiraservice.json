@@ -216,7 +216,7 @@
         "Name": {
           "Fn::Sub": "${ProductName}-${EnvironmentName}-jira-TG"
         },
-        "Port": 80,
+        "Port": 8080,
         "Protocol": "HTTP",
         "Tags": [
           {
