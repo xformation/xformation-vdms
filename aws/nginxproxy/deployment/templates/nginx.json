@@ -67,7 +67,7 @@
   "Resources": {
     "Service": {
       "Type": "AWS::ECS::Service",
-      "DependsOn": "ListenerRule",
+      "DependsOn": ["ListenerRule1","ListenerRule2"],
       "Properties": {
         "Cluster": {
           "Ref": "Cluster"
