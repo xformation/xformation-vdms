@@ -199,7 +199,7 @@
           "HttpCode": "200-499"
         },
         "Name": {
-          "Fn::Sub": "${ProductName}-${EnvironmentName}-website-TG"
+          "Fn::Sub": "${ProductName}-${EnvironmentName}-proxy-TG"
         },
         "Port": 80,
         "Protocol": "HTTP",
@@ -207,7 +207,7 @@
           {
             "Key": "Name",
             "Value": {
-              "Fn::Sub": "${ProductName}.${EnvironmentName}-website-TG"
+              "Fn::Sub": "${ProductName}.${EnvironmentName}-proxy-TG"
             }
           }
         ],
