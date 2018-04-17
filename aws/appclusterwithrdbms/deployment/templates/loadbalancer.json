@@ -154,7 +154,7 @@
             }
         },
         "HttpListener": {
-            "Description": "A reference to a port 443 listener", 
+            "Description": "A reference to a port 80 listener", 
             "Value": {
                 "Ref": "LoadBalancerHttpListener"
             }
