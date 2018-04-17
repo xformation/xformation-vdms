@@ -5,7 +5,7 @@ pipeline {
     }
     agent any
     environment { 
-        IMAGE_NAME  = 'synectiks-website'
+        IMAGE_NAME  = 'synectiks-proxy'
         REGISTRY =  'papu'
         VERSION = 'latest'
     }
@@ -52,7 +52,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('synectiks-website') {
+                        dir('nginx-proxy') {
                             sh "make image"
                          }
                     } catch (Exception e) {
@@ -67,7 +67,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('synectiks-website') {
+                        dir('nginx-proxy') {
                             echo "To Do implement this"
                         }
                     } catch (Exception e) {
@@ -82,7 +82,7 @@ pipeline {
             steps {
                 script { 
                         try {
-                                dir('synectiks-website') {
+                                dir('nginx-proxy') {
                                         //sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
                                         sh 'docker login -u papu -p jaya8668'
                                         sh "make publish"
@@ -114,9 +114,9 @@ pipeline {
                 script {
                     if(isDev == 'true') {
                         try {
-                            dir('aws/synectiks-website') {
+                            dir('aws/nginxproxy') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) { 
-                                    sh "sceptre --dir deployment/ launch-stack dev website"
+                                    sh "sceptre --dir deployment/ launch-stack dev nginx"
                                 }
                             }
                         } catch (Exception e) {
@@ -133,9 +133,9 @@ pipeline {
                 script {
                     if(isTest == 'true') {
                         try {
-                            dir('aws/synectiks-website') {
+                            dir('aws/nginxproxy') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-test']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack test website"
+                                    sh "sceptre --dir deployment/ launch-stack test nginx"
                                 }
                             }                           
                         } catch (Exception e) {
@@ -164,9 +164,9 @@ pipeline {
                     echo "Deploying in Stage" 
                     if(isStage == 'true') {
                         try {
-                            dir('aws/synectiks-website') {
+                            dir('aws/nginxproxy') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-stage']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack stage website"
+                                    sh "sceptre --dir deployment/ launch-stack stage nginx"
                                 }
                             }                           
                         } catch (Exception e) {
@@ -195,9 +195,9 @@ pipeline {
                 script {
                     if(isProd == 'true') {
                         try {
-                            dir('aws/synectiks-website') {
+                            dir('aws/nginxproxy') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-prod']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack prod website"
+                                    sh "sceptre --dir deployment/ launch-stack prod nginx"
                                 }
                             }                             
                         } catch (Exception e) {
