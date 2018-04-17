@@ -168,23 +168,17 @@
             "Values": [
               {
                 "Ref": "HostHeader1"
-              }
-            ]
-          },
-          {
-            "Field": "host-header",
-            "Values": [
+              },
               {
                 "Ref": "HostHeader2"
               }
             ]
           }
-
         ],
         "ListenerArn": {
           "Ref": "HttpListener"
         },
-        "Priority": 2
+        "Priority": 3
       }
     },
     "TargetGroup": {
