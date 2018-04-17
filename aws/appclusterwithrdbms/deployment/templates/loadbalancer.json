@@ -152,6 +152,12 @@
             "Value": {
                 "Ref": "LoadBalancerListener"
             }
+        },
+        "HttpListener": {
+            "Description": "A reference to a port 443 listener", 
+            "Value": {
+                "Ref": "LoadBalancerHttpListener"
+            }
         }
     }
 }
