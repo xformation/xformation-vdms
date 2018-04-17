@@ -148,7 +148,7 @@
         "ListenerArn": {
           "Ref": "HttpsListener"
         },
-        "Priority": 2
+        "Priority": 3
       }
     },
     "ListenerRule2": {
@@ -168,7 +168,31 @@
             "Values": [
               {
                 "Ref": "HostHeader1"
-              },
+              }
+            ]
+          }
+        ],
+        "ListenerArn": {
+          "Ref": "HttpListener"
+        },
+        "Priority": 4
+      }
+    },
+    "ListenerRule3": {
+      "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
+      "Properties": {
+        "Actions": [
+          {
+            "TargetGroupArn": {
+              "Ref": "TargetGroup"
+            },
+            "Type": "forward"
+          }
+        ],
+        "Conditions": [
+          {
+            "Field": "host-header",
+            "Values": [
               {
                 "Ref": "HostHeader2"
               }
@@ -178,7 +202,7 @@
         "ListenerArn": {
           "Ref": "HttpListener"
         },
-        "Priority": 3
+        "Priority": 5
       }
     },
     "TargetGroup": {
