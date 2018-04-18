@@ -98,7 +98,7 @@
               }
             ],
             "Cpu":  "256",
-            "Memory": "256",
+            "Memory": "512",
             "Essential": "true",
             "LogConfiguration": {
               "LogDriver": "awslogs",
@@ -156,7 +156,7 @@
         "Name": {
           "Fn::Sub": "${ProductName}-${EnvironmentName}-nexus-TG"
         },
-        "Port": 80,
+        "Port": 8081,
         "Protocol": "HTTP",
         "Tags": [
           {
