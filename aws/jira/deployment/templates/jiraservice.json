@@ -132,8 +132,6 @@
                 "ContainerPort": 8080
               }
             ],
-            "Cpu":  "1024",
-            "Memory": "6000",
             "Essential": "true",
             "Environment": [
               {
