@@ -133,8 +133,8 @@
               }
             ],
             "Essential": "true",
-            "memory": 6000,
-            "cpu": 1024,
+            "Memory": 6000,
+            "Cpu": 1024,
             "Environment": [
               {
                 "Name": "DB_HOST",
