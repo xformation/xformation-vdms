@@ -1,4 +1,4 @@
-template_path: templates/nexus.json
+template_path: templates/sonarqube.json
 parameters:
   ProductName: !stack_output backbone::ProductName
   EnvironmentName: !stack_output backbone::EnvironmentName

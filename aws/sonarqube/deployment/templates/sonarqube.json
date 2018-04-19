@@ -69,7 +69,7 @@
         "LoadBalancers": [
           {
             "ContainerName": "synectiks-sonarqube",
-            "ContainerPort": 8081,
+            "ContainerPort": 9000,
             "TargetGroupArn": {
               "Ref": "TargetGroup"
             }
@@ -94,7 +94,7 @@
             "Image": {"Fn::Sub": "${EcrUrl}/${ServiceName}:${VERSION}"},
             "PortMappings": [
               {
-                "ContainerPort": 8081
+                "ContainerPort": 9000
               }
             ],
             "Cpu":  "512",
@@ -156,7 +156,7 @@
         "Name": {
           "Fn::Sub": "${ProductName}-${EnvironmentName}-sonarqube-TG"
         },
-        "Port": 8081,
+        "Port": 9000,
         "Protocol": "HTTP",
         "Tags": [
           {
