@@ -1,0 +1,203 @@
+pipeline {
+    options
+    {
+        buildDiscarder(logRotator(numToKeepStr: '3'))
+    }
+    agent any
+    environment { 
+        IMAGE_NAME  = 'synectiks-sonarqube'
+        REGISTRY =  'papu'
+        VERSION = 'latest'
+    }
+    stages {
+        stage('WSClean') {
+            steps { 
+                step([$class:'WsCleanup'])
+            }
+        } 
+        stage('Checkout') {
+            steps { 
+                script {
+                    try {
+                        git url: 'https://github.com/xformation/docker-builders.git -b shahbaz_sonar'
+                    } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                    }
+                }
+            }
+        }         
+        stage('HashCalc') {
+            steps
+            {
+                script 
+                {
+                    try {
+                            // calculate GIT lastest commit short-hash
+                            gitCommitHash = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                            shortCommitHash = gitCommitHash.take(7)
+                            // calculate a sample version tag
+                            VERSION = shortCommitHash
+                            // set the build display name
+                            currentBuild.displayName = "#${BUILD_ID}-${VERSION}"
+                    } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        throw e
+                    }
+                }
+            }
+        }
+        stage('CreateImage') {
+            steps { 
+                script {
+                    try {
+                        dir('synectiks-sonarqube') {
+                            sh "make image"
+                         }
+                    } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        throw e
+                    }
+                }
+            }
+        } 
+        stage('LocalTest') {
+            steps { 
+                script {
+                    try {
+                        dir('synectiks-sonarqube') {
+                            echo "To Do implement this"
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        throw e
+                    }
+                }
+            }
+        }
+        stage('PublishImage') {
+            steps {
+                script { 
+                        try {
+                                dir('synectiks-sonarqube') {
+                                        //sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
+                                        sh 'docker login -u papu -p jaya8668'
+                                        sh "make publish"
+                                 }
+                        } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        throw e
+                    }
+                }
+            }
+        }
+        stage('DevUpdate') {
+            steps { 
+                echo "Deploying Service in Dev Bucket"                 
+                script {
+                    if(isDev == 'true') {
+                        try {
+                                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) { 
+                                    sh "update-ecs.sh -r us-east-1 -c basecluster-dev-cluster -n synectiks-sonarqube -i 'papu/synectiks-sonarqube'"
+                            }                           
+                        } catch (Exception e) {
+                            currentBuild.result = "FAILURE"
+                            step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        }
+                    }
+                }
+            }
+        } 
+        stage('TestDeploy') {
+            steps { 
+                echo "Deploying Service in Test Bucket"                
+                script {
+                    if(isTest == 'true') {
+                        try {
+                                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-test']]) {                                    
+                                    sh "update-ecs.sh -r us-east-1 -c basecluster-dev-cluster -n synectiks-sonarqube -i 'papu/synectiks-sonarqube'"
+                            }                           
+                        } catch (Exception e) {
+                            currentBuild.result = "FAILURE"
+                            step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        }
+                    }
+                }               
+            }
+        }         
+        stage('ATP') {
+            steps { 
+                script {
+                    try {
+                        echo "Doing ATP" 
+                    } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                    }
+                }
+            }
+        } 
+        stage('StageDeploy') {
+            steps {                 
+                script {
+                    echo "Deploying in Stage" 
+                    if(isStage == 'true') {
+                        try {
+                                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-stage']]) {                                    
+                                    sh "update-ecs.sh -r us-east-1 -c basecluster-dev-cluster -n synectiks-sonarqube -i 'papu/synectiks-sonarqube'"
+                            }                           
+                        } catch (Exception e) {
+                            currentBuild.result = "FAILURE"
+                            step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        }
+                    }
+                }
+            }
+        } 
+        stage('ApproveForProd') {
+            steps { 
+                script {
+                    try {
+                        echo "Prod Approval" 
+                    } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                    }
+                }
+            }
+        } 
+        stage('ProdDeploy') {
+            steps { 
+                echo "Deploying Service in Prod Bucket" 
+                script {
+                    if(isProd == 'true') {
+                        try {
+                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-prod']]) {                                    
+                                    sh "update-ecs.sh -r us-east-1 -c basecluster-dev-cluster -n synectiks-sonarqube -i 'papu/synectiks-sonarqube'"
+                            }                             
+                        } catch (Exception e) {
+                            currentBuild.result = "FAILURE"
+                            step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        }
+                    }
+                }                
+            }
+        }                    
+    } 
+    post
+    {
+        always
+        {
+            // make sure that the Docker image is removed
+            // dir('jenkin/services/crossover') {
+            //     archive "target/**/*"
+            //     junit 'target/surefire-reports/*.xml'
+            // }
+            sh "docker rmi $IMAGE_NAME | true"           
+        }
+    }
+}
