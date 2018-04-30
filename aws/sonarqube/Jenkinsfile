@@ -5,7 +5,7 @@ pipeline {
     }
     agent any
     environment { 
-        IMAGE_NAME  = 'synectiks-sonarqube'
+        IMAGE_NAME  = 'jiraservice'
         REGISTRY =  'papu'
         VERSION = 'latest'
     }
@@ -19,11 +19,7 @@ pipeline {
             steps { 
                 script {
                     try {
-<<<<<<< HEAD
-                        git url: 'https://github.com/xformation/docker-builders.git -b sonar_deployment'
-=======
                         git url: 'https://github.com/xformation/docker-builders.git'
->>>>>>> parent of 4c36653... git branch updated
                     } catch (Exception e) {
                         currentBuild.result = "FAILURE"
                         step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
@@ -56,7 +52,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('sonarqube') {
+                        dir('jira') {
                             sh "make image"
                          }
                     } catch (Exception e) {
@@ -71,7 +67,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('sonarqube') {
+                        dir('jira') {
                             echo "To Do implement this"
                         }
                     } catch (Exception e) {
@@ -86,7 +82,7 @@ pipeline {
             steps {
                 script { 
                         try {
-                                dir('sonarqube') {
+                                dir('jenkin') {
                                         //sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
                                         sh 'docker login -u papu -p jaya8668'
                                         sh "make publish"
@@ -118,9 +114,9 @@ pipeline {
                 script {
                     if(isDev == 'true') {
                         try {
-                            dir('aws/sonarqube') {
+                            dir('aws/jira') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) { 
-                                    sh "sceptre --dir deployment/ launch-stack dev sonarqube"
+                                    sh "sceptre --dir deployment/ launch-stack dev jiraservice"
                                 }
                             }
                         } catch (Exception e) {
@@ -137,9 +133,9 @@ pipeline {
                 script {
                     if(isTest == 'true') {
                         try {
-                            dir('aws/sonarqube') {
+                            dir('aws/jira') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-test']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack test sonarqube"
+                                    sh "sceptre --dir deployment/ launch-stack test jiraservice"
                                 }
                             }                           
                         } catch (Exception e) {
@@ -168,9 +164,9 @@ pipeline {
                     echo "Deploying in Stage" 
                     if(isStage == 'true') {
                         try {
-                            dir('aws/sonarqube') {
+                            dir('aws/jira') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-stage']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack stage sonarqube"
+                                    sh "sceptre --dir deployment/ launch-stack stage jiraservice"
                                 }
                             }                           
                         } catch (Exception e) {
@@ -199,9 +195,9 @@ pipeline {
                 script {
                     if(isProd == 'true') {
                         try {
-                            dir('aws/sonarqube') {
+                            dir('aws/jira') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-prod']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack prod sonarqube"
+                                    sh "sceptre --dir deployment/ launch-stack prod jiraservice"
                                 }
                             }                             
                         } catch (Exception e) {
