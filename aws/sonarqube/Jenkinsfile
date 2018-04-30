@@ -116,7 +116,7 @@ pipeline {
                         try {
                             dir('aws/sonarqube') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) { 
-                                    sh "sceptre --dir deployment/ launch-stack dev sonarqubeservice"
+                                    sh "sceptre --dir deployment/ launch-stack dev sonarqube"
                                 }
                             }
                         } catch (Exception e) {
