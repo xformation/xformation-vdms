@@ -6,7 +6,7 @@ pipeline {
     agent any
     environment { 
         IMAGE_NAME  = 'sonarqubeservice'
-        REGISTRY =  ''
+        REGISTRY =  'papu'
         VERSION = 'latest'
     }
     stages {
