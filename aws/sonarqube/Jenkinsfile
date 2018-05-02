@@ -5,7 +5,7 @@ pipeline {
     }
     agent any
     environment { 
-        IMAGE_NAME  = 'sonarqubeservice'
+        IMAGE_NAME  = 'sonarqube'
         REGISTRY =  'papu'
         VERSION = 'latest'
     }

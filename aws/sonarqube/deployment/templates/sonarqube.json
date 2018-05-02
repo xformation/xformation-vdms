@@ -42,7 +42,7 @@
     "ServiceName": {
       "Description": "The service name of the service",
       "Type": "String",
-      "Default": "synectiks-sonarqube"
+      "Default": "sonarqube"
     },
     "VERSION": {
       "Description": "Image Version",
@@ -52,7 +52,7 @@
     "HostHeader": {
       "Description": "The Application Load Balancer listener to register with",
       "Type": "String",
-      "Default": "sonarqube.synectiks.com"
+      "Default": "sonar.synectiks.com"
     }
   },
   "Resources": {
@@ -97,8 +97,7 @@
                 "ContainerPort": 9000
               }
             ],
-            "Cpu":  "512",
-            "Memory": "1024",
+            "Memory": "512",
             "Essential": "true",
             "LogConfiguration": {
               "LogDriver": "awslogs",
@@ -139,7 +138,7 @@
         "ListenerArn": {
           "Ref": "Listener"
         },
-        "Priority": 6
+        "Priority": 7
       }
     },
     "TargetGroup": {
