@@ -52,6 +52,11 @@
       "AllowedPattern": "[a-zA-Z0-9]+",
       "ConstraintDescription": "must contain only alphanumeric characters."
     },
+    "DBHost": {
+      "Default": "journal",
+      "Description": "The database host url",
+      "Type": "String"
+    },
     "DBJdbcUrl": {
       "NoEcho": "true",
       "Description": "The database jdbc url",
