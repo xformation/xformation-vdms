@@ -69,7 +69,7 @@
         "LoadBalancers": [
           {
             "ContainerName": "synectiks-archiva",
-            "ContainerPort": 8081,
+            "ContainerPort": 8080,
             "TargetGroupArn": {
               "Ref": "TargetGroup"
             }
