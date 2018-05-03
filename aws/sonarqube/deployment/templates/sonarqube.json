@@ -124,6 +124,24 @@
             ],
             "Memory": "2048",
             "Essential": "true",
+            "Environment": [
+              {
+                "Name": "DB_HOST",
+                "Value": { "Ref": "DBHost"}
+              },
+              {
+                "Name": "SONARQUBE_JDBC_USERNAME",
+                "Value": { "Ref": "DBUser"}
+              },
+              {
+                "Name": "SONARQUBE_JDBC_PASSWORD",
+                "Value": { "Ref": "DBPassword"}
+              },
+              {
+                "Name": "SONARQUBE_JDBC_URL",
+                "Value": {"Fn::Sub": "${DBJdbcUrl}/sonar"}
+              }
+            ],
             "LogConfiguration": {
               "LogDriver": "awslogs",
               "Options": {
