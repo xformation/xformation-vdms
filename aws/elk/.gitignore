@@ -1,0 +1,6 @@
+target/
+build/
+AwsCredentials.properties
+.classpath
+.project
+/.settings
