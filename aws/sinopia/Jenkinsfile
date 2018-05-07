@@ -5,7 +5,7 @@ pipeline {
     }
     agent any
     environment { 
-        IMAGE_NAME  = 'synectiks-sinopia'
+        IMAGE_NAME  = 'synectiks-sinopiatest'
         REGISTRY =  'papu'
         VERSION = 'latest'
     }
@@ -116,7 +116,7 @@ pipeline {
                         try {
                             dir('aws/sinopia') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) { 
-                                    sh "sceptre --dir deployment/ launch-stack dev sinopia"
+                                    sh "sceptre --dir deployment/ launch-stack dev sinopiatest"
                                 }
                             }
                         } catch (Exception e) {
@@ -135,7 +135,7 @@ pipeline {
                         try {
                             dir('aws/sinopia') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-test']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack test sinopia"
+                                    sh "sceptre --dir deployment/ launch-stack test sinopiatest"
                                 }
                             }                           
                         } catch (Exception e) {
@@ -166,7 +166,7 @@ pipeline {
                         try {
                             dir('aws/sinopia') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-stage']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack stage sinopia"
+                                    sh "sceptre --dir deployment/ launch-stack stage sinopiatest"
                                 }
                             }                           
                         } catch (Exception e) {
@@ -197,7 +197,7 @@ pipeline {
                         try {
                             dir('aws/sinopia') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-prod']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack prod sinopia"
+                                    sh "sceptre --dir deployment/ launch-stack prod sinopiatest"
                                 }
                             }                             
                         } catch (Exception e) {
