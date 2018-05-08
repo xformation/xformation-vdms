@@ -42,7 +42,7 @@
     "ServiceName": {
       "Description": "The service name of the service",
       "Type": "String",
-      "Default": "synectiks-sinopiatest"
+      "Default": "synectiks-sinopia"
     },
     "VERSION": {
       "Description": "Image Version",
@@ -52,7 +52,7 @@
     "HostHeader": {
       "Description": "The Application Load Balancer listener to register with",
       "Type": "String",
-      "Default": "sinopiatest.synectiks.com"
+      "Default": "synectiks-sinopia.com"
     }
   },
   "Resources": {
@@ -68,7 +68,7 @@
         },
         "LoadBalancers": [
           {
-            "ContainerName": "synectiks-sinopiatest",
+            "ContainerName": "synectiks-sinopia",
             "ContainerPort": 4873,
             "TargetGroupArn": {
               "Ref": "TargetGroup"
@@ -78,7 +78,7 @@
         "Role": {
           "Ref": "ServiceRole"
         },
-        "ServiceName": "synectiks-sinopiatest",
+        "ServiceName": "synectiks-sinopia",
         "TaskDefinition": {
           "Ref": "TaskDefinition"
         }
@@ -87,17 +87,16 @@
     "TaskDefinition": {
       "Type": "AWS::ECS::TaskDefinition",
       "Properties": {
-        "Family": "synectiks-sinopiatest",
+        "Family": "synectiks-sinopia",
         "ContainerDefinitions": [
           {
-            "Name": "synectiks-sinopiatest",
+            "Name": "synectiks-sinopia",
             "Image": {"Fn::Sub": "${EcrUrl}/${ServiceName}:${VERSION}"},
             "PortMappings": [
               {
                 "ContainerPort":4873
               }
-            ],
-            "cpu" : "512",           
+            ],                      
             "Memory": "2048",
             "Essential": "true",
             "LogConfiguration": {
@@ -186,7 +185,7 @@
         ],
         "Policies": [
           {
-            "PolicyName": "sinopiatest-service-policies",
+            "PolicyName": "sinopia-service-policies",
             "PolicyDocument": {
               "Version": "2012-10-17",
               "Statement": [
