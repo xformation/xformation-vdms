@@ -52,7 +52,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('sinopia') {
+                        dir('synectiks-sinopiatest') {
                             sh "make image"
                          }
                     } catch (Exception e) {
@@ -67,7 +67,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('sinopia') {
+                        dir('synectiks-sinopiatest') {
                             echo "To Do implement this"
                         }
                     } catch (Exception e) {
@@ -82,7 +82,7 @@ pipeline {
             steps {
                 script { 
                         try {
-                                dir('sinopia') {
+                                dir('synectiks-sinopiatest') {
                                         //sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
                                         sh 'docker login -u papu -p jaya8668'
                                         sh "make publish"
@@ -95,30 +95,15 @@ pipeline {
                 }
             }
         }
-        stage('PullDeploymentArtifacts') {
-            steps { 
-                step([$class:'WsCleanup'])
-                script {
-                    try {
-                        git url: 'https://github.com/xformation/xformation-vdms.git'
-                    } catch (Exception e) {
-                        currentBuild.result = "FAILURE"
-                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
-                    }
-                }
-            }
-        }         
-        stage('DevDeploy') {
+        stage('DevUpdate') {
             steps { 
                 echo "Deploying Service in Dev Bucket"                 
                 script {
                     if(isDev == 'true') {
                         try {
-                            dir('aws/sinopia') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) { 
-                                    sh "sceptre --dir deployment/ launch-stack dev sinopiatest"
-                                }
-                            }
+                                    sh "update-ecs.sh -r us-east-1 -c basecluster-dev-cluster -n synectiks-sinopiatest -i 'papu/synectiks-sinopiatest'"
+                            }                           
                         } catch (Exception e) {
                             currentBuild.result = "FAILURE"
                             step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
@@ -133,10 +118,8 @@ pipeline {
                 script {
                     if(isTest == 'true') {
                         try {
-                            dir('aws/sinopia') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-test']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack test sinopiatest"
-                                }
+                                    sh "update-ecs.sh -r us-east-1 -c basecluster-dev-cluster -n synectiks-sinopiatest -i 'papu/synectiks-sinopiatest'"
                             }                           
                         } catch (Exception e) {
                             currentBuild.result = "FAILURE"
@@ -164,10 +147,8 @@ pipeline {
                     echo "Deploying in Stage" 
                     if(isStage == 'true') {
                         try {
-                            dir('aws/sinopia') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-stage']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack stage sinopiatest"
-                                }
+                                    sh "update-ecs.sh -r us-east-1 -c basecluster-dev-cluster -n synectiks-sinopiatest -i 'papu/synectiks-sinopiatest'"
                             }                           
                         } catch (Exception e) {
                             currentBuild.result = "FAILURE"
@@ -195,10 +176,8 @@ pipeline {
                 script {
                     if(isProd == 'true') {
                         try {
-                            dir('aws/sinopia') {
-                                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-prod']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack prod sinopiatest"
-                                }
+                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-prod']]) {                                    
+                                    sh "update-ecs.sh -r us-east-1 -c basecluster-dev-cluster -n synectiks-sinopiatest -i 'papu/synectiks-sinopiatest'"
                             }                             
                         } catch (Exception e) {
                             currentBuild.result = "FAILURE"

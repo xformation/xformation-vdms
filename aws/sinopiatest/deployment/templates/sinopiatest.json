@@ -154,7 +154,7 @@
           "HttpCode": "200-499"
         },
         "Name": {
-          "Fn::Sub": "${ProductName}-${EnvironmentName}-sinopia-TG"
+          "Fn::Sub": "${ProductName}-${EnvironmentName}-sinopiatest-TG"
         },
         "Port": 4873,
         "Protocol": "HTTP",
@@ -162,7 +162,7 @@
           {
             "Key": "Name",
             "Value": {
-              "Fn::Sub": "${ProductName}.${EnvironmentName}-sinopia-TG"
+              "Fn::Sub": "${ProductName}.${EnvironmentName}-sinopiatest-TG"
             }
           }
         ],
