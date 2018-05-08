@@ -96,8 +96,7 @@
               {
                 "ContainerPort":4873
               }
-            ],
-            "cpu" : "512",           
+            ],                     
             "Memory": "2048",
             "Essential": "true",
             "LogConfiguration": {
