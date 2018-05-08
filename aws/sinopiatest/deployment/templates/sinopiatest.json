@@ -42,7 +42,7 @@
     "ServiceName": {
       "Description": "The service name of the service",
       "Type": "String",
-      "Default": "synectiks-sinopiatest"
+      "Default": "synectiks-sinopiatest.com"
     },
     "VERSION": {
       "Description": "Image Version",
@@ -52,7 +52,7 @@
     "HostHeader": {
       "Description": "The Application Load Balancer listener to register with",
       "Type": "String",
-      "Default": "sinopiatest.synectiks.com"
+      "Default": "synectiks-sinopiatest.com"
     }
   },
   "Resources": {
