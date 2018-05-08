@@ -5,7 +5,7 @@ pipeline {
     }
     agent any
     environment { 
-        IMAGE_NAME  = 'synectiks-sinopiatest'
+        IMAGE_NAME  = 'synectiks-sinopia'
         REGISTRY =  'papu'
         VERSION = 'latest'
     }
