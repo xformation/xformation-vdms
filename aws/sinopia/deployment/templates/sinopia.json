@@ -96,8 +96,9 @@
               {
                 "ContainerPort":4873
               }
-            ],            
-            "Memory": "1024",
+            ],
+            "cpu" : "512",           
+            "Memory": "2048",
             "Essential": "true",
             "LogConfiguration": {
               "LogDriver": "awslogs",
