@@ -52,7 +52,7 @@
     "HostHeader": {
       "Description": "The Application Load Balancer listener to register with",
       "Type": "String",
-      "Default": "sinopiatest.synectiks.com"
+      "Default": "synectiks-sinopiatest.com"
     }
   },
   "Resources": {
@@ -96,8 +96,7 @@
               {
                 "ContainerPort":4873
               }
-            ],
-            "cpu" : "512",           
+            ],                      
             "Memory": "2048",
             "Essential": "true",
             "LogConfiguration": {
