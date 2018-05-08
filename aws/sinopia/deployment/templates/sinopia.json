@@ -52,7 +52,7 @@
     "HostHeader": {
       "Description": "The Application Load Balancer listener to register with",
       "Type": "String",
-      "Default": "sinopia.synectiks.com"
+      "Default": "sinopiatest.synectiks.com"
     }
   },
   "Resources": {
@@ -68,7 +68,7 @@
         },
         "LoadBalancers": [
           {
-            "ContainerName": "synectiks-sinopia",
+            "ContainerName": "synectiks-sinopiatest",
             "ContainerPort": 4873,
             "TargetGroupArn": {
               "Ref": "TargetGroup"
@@ -78,7 +78,7 @@
         "Role": {
           "Ref": "ServiceRole"
         },
-        "ServiceName": "synectiks-sinopia",
+        "ServiceName": "synectiks-sinopiatest",
         "TaskDefinition": {
           "Ref": "TaskDefinition"
         }
@@ -87,10 +87,10 @@
     "TaskDefinition": {
       "Type": "AWS::ECS::TaskDefinition",
       "Properties": {
-        "Family": "synectiks-sinopia",
+        "Family": "synectiks-sinopiatest",
         "ContainerDefinitions": [
           {
-            "Name": "synectiks-sinopia",
+            "Name": "synectiks-sinopiatest",
             "Image": {"Fn::Sub": "${EcrUrl}/${ServiceName}:${VERSION}"},
             "PortMappings": [
               {
@@ -186,7 +186,7 @@
         ],
         "Policies": [
           {
-            "PolicyName": "sinopia-service-policies",
+            "PolicyName": "sinopiatest-service-policies",
             "PolicyDocument": {
               "Version": "2012-10-17",
               "Statement": [
