@@ -97,7 +97,7 @@
                 "ContainerPort": 8080
               }
             ],
-            "Memory": "2048",
+            "MemoryReservation": "4000",
             "Essential": "true",
             "LogConfiguration": {
               "LogDriver": "awslogs",
