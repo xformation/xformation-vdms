@@ -98,7 +98,7 @@
               }
             ],
             "cpu" : "512",           
-            "Memory": "2048",
+            "MemoryReservation": "2048",
             "Essential": "true",
             "LogConfiguration": {
               "LogDriver": "awslogs",
