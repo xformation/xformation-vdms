@@ -128,6 +128,7 @@
               }
             ],
             "MemoryReservation": "4000",
+            "Memory": "128",
             "Essential": "true",
             "Environment": [
               {

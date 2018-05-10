@@ -133,7 +133,8 @@
               }
             ],
             "Essential": "true",
-            "MemoryReservation": "10000",
+            "Memory": "10000",
+            "MemoryReservation": "128",
             "Environment": [
               {
                 "Name": "DB_HOST",
