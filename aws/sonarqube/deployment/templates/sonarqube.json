@@ -127,8 +127,8 @@
                 "ContainerPort": 9000
               }
             ],
-            "MemoryReservation": "4000",
-            "Memory": "128",
+            "MemoryReservation": "128",
+            "Memory": "4000",
             "Essential": "true",
             "Environment": [
               {
