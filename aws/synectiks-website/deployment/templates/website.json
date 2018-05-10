@@ -97,7 +97,6 @@
                 "ContainerPort": 80
               }
             ],
-            "Cpu":  "512",
             "MemoryReservation": "512",
             "Essential": "true",
             "LogConfiguration": {
