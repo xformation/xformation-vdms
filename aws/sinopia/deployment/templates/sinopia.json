@@ -52,7 +52,7 @@
     "HostHeader": {
       "Description": "The Application Load Balancer listener to register with",
       "Type": "String",
-      "Default": "synectiks-sinopia.com"
+      "Default": "synectiks-sinopia"
     }
   },
   "Resources": {
@@ -139,7 +139,7 @@
         "ListenerArn": {
           "Ref": "Listener"
         },
-        "Priority": 6
+        "Priority": 9
       }
     },
     "TargetGroup": {
