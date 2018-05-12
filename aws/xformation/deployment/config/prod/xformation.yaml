@@ -7,7 +7,7 @@ parameters:
   Listener: !stack_output loadbalancer::Listener
   LoadbalancerUrl:  !stack_output loadbalancer::LoadBalancerUrl
   DBHost:  !stack_output rds::DbUrl
-  DBUser: xformation
-  DBPassword: xformation
+  DBUser: postgres
+  DBPassword: postgres
   DBJdbcUrl: !stack_output rds::JDBCConnectionStringPrefix
   
