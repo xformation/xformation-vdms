@@ -97,7 +97,7 @@
                 "ContainerPort":4873
               }
             ],    
-            "Memory": "4000",                  
+            "Memory": "1024",                  
             "MemoryReservation": "128",
             "Essential": "true",
             "LogConfiguration": {
