@@ -121,7 +121,9 @@
         "ContainerDefinitions": [
           {
             "Name": "sdp-service",
-
+            "links": [
+              "testdata"
+            ],
             "Image": {"Fn::Sub": "${EcrUrl}/${ServiceName}:${VERSION}"},
             "PortMappings": [
               {
