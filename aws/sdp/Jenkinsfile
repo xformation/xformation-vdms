@@ -5,7 +5,8 @@ pipeline {
     }
     agent any
     environment { 
-        IMAGE_NAME  = 'xformation'
+        IMAGE_NAME  = 'sdp-service'
+        TEST_IMAGE_NAME  = 'xformation'
         REGISTRY =  'papu'
         VERSION = 'latest'
     }
@@ -52,7 +53,22 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('xformation') {
+                        dir('sdp') {
+                            sh "make image"
+                         }
+                    } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        throw e
+                    }
+                }
+            }
+        } 
+        stage('CreateTestDataImage') {
+            steps { 
+                script {
+                    try {
+                        dir('sdp-testdata') {
                             sh "make image"
                          }
                     } catch (Exception e) {
@@ -67,7 +83,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('xformation') {
+                        dir('sdp') {
                             echo "To Do implement this"
                         }
                     } catch (Exception e) {
@@ -83,6 +99,23 @@ pipeline {
                 script { 
                         try {
                                 dir('xformation') {
+                                        //sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
+                                        sh 'docker login -u papu -p jaya8668'
+                                        sh "make publish"
+                                 }
+                        } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        throw e
+                    }
+                }
+            }
+        }
+        stage('PublishTestDataImage') {
+            steps {
+                script { 
+                        try {
+                                dir('sdp-testdata') {
                                         //sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
                                         sh 'docker login -u papu -p jaya8668'
                                         sh "make publish"
@@ -114,9 +147,9 @@ pipeline {
                 script {
                     if(isDev == 'true') {
                         try {
-                            dir('aws/xformation') {
+                            dir('aws/sdp') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) { 
-                                    sh "sceptre --dir deployment/ launch-stack dev xformation"
+                                    sh "sceptre --dir deployment/ launch-stack dev sdp"
                                 }
                             }
                         } catch (Exception e) {
@@ -133,9 +166,9 @@ pipeline {
                 script {
                     if(isTest == 'true') {
                         try {
-                            dir('aws/xformation') {
+                            dir('aws/sdp') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-test']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack test xformation"
+                                    sh "sceptre --dir deployment/ launch-stack test sdp"
                                 }
                             }                           
                         } catch (Exception e) {
@@ -164,9 +197,9 @@ pipeline {
                     echo "Deploying in Stage" 
                     if(isStage == 'true') {
                         try {
-                            dir('aws/xformation') {
+                            dir('aws/sdp') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-stage']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack stage xformation"
+                                    sh "sceptre --dir deployment/ launch-stack stage sdp"
                                 }
                             }                           
                         } catch (Exception e) {
@@ -195,9 +228,9 @@ pipeline {
                 script {
                     if(isProd == 'true') {
                         try {
-                            dir('aws/xformation') {
+                            dir('aws/sdp') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-prod']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack prod xformation"
+                                    sh "sceptre --dir deployment/ launch-stack prod sdp"
                                 }
                             }                             
                         } catch (Exception e) {
