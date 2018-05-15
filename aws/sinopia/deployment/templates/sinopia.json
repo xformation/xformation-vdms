@@ -97,7 +97,7 @@
                 "ContainerPort":4873
               }
             ],    
-            "Memory": "2048",                  
+            "Memory": "1024",                  
             "MemoryReservation": "128",
             "Essential": "true",
             "LogConfiguration": {
@@ -139,7 +139,7 @@
         "ListenerArn": {
           "Ref": "Listener"
         },
-        "Priority": 9
+        "Priority": 10
       }
     },
     "TargetGroup": {
