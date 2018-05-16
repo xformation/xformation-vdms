@@ -1,0 +1,224 @@
+pipeline {
+    options
+    {
+        buildDiscarder(logRotator(numToKeepStr: '3'))
+    }
+    agent any
+    environment { 
+        IMAGE_NAME  = 'sdp-testdata'
+        REGISTRY =  'papu'
+        VERSION = 'latest'
+    }
+    stages {
+        stage('WSClean') {
+            steps { 
+                step([$class:'WsCleanup'])
+            }
+        } 
+        stage('Checkout') {
+            steps { 
+                script {
+                    try {
+                        git url: 'https://github.com/xformation/docker-builders.git'
+                    } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                    }
+                }
+            }
+        }         
+        stage('HashCalc') {
+            steps
+            {
+                script 
+                {
+                    try {
+                            // calculate GIT lastest commit short-hash
+                            gitCommitHash = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                            shortCommitHash = gitCommitHash.take(7)
+                            // calculate a sample version tag
+                            VERSION = shortCommitHash
+                            // set the build display name
+                            currentBuild.displayName = "#${BUILD_ID}-${VERSION}"
+                    } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        throw e
+                    }
+                }
+            }
+        }
+        stage('CreateImage') {
+            steps { 
+                script {
+                    try {
+                        dir('sdp-testdata') {
+                            sh "make image"
+                         }
+                    } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        throw e
+                    }
+                }
+            }
+        } 
+        stage('LocalTest') {
+            steps { 
+                script {
+                    try {
+                        dir('sdp') {
+                            echo "To Do implement this"
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        throw e
+                    }
+                }
+            }
+        }
+        stage('PublishImage') {
+            steps {
+                script { 
+                        try {
+                                dir('xformation') {
+                                        //sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
+                                        sh 'docker login -u papu -p jaya8668'
+                                        sh "make publish"
+                                 }
+                        } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        throw e
+                    }
+                }
+            }
+        }
+        stage('PullDeploymentArtifacts') {
+            steps { 
+                step([$class:'WsCleanup'])
+                script {
+                    try {
+                        git url: 'https://github.com/xformation/xformation-vdms.git'
+                    } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                    }
+                }
+            }
+        }         
+        stage('DevDeploy') {
+            steps { 
+                echo "Deploying Service in Dev Bucket"                 
+                script {
+                    if(isDev == 'true') {
+                        try {
+                            dir('aws/sdp-testdata') {
+                                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) { 
+                                    sh "sceptre --dir deployment/ launch-stack dev sdp-testdata"
+                                }
+                            }
+                        } catch (Exception e) {
+                            currentBuild.result = "FAILURE"
+                            step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        }
+                    }
+                }
+            }
+        } 
+        stage('TestDeploy') {
+            steps { 
+                echo "Deploying Service in Test Bucket"                
+                script {
+                    if(isTest == 'true') {
+                        try {
+                            dir('aws/sdp-testdata') {
+                                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-test']]) {                                    
+                                    sh "sceptre --dir deployment/ launch-stack test sdp-testdata"
+                                }
+                            }                           
+                        } catch (Exception e) {
+                            currentBuild.result = "FAILURE"
+                            step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        }
+                    }
+                }               
+            }
+        }         
+        stage('ATP') {
+            steps { 
+                script {
+                    try {
+                        echo "Doing ATP" 
+                    } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                    }
+                }
+            }
+        } 
+        stage('StageDeploy') {
+            steps {                 
+                script {
+                    echo "Deploying in Stage" 
+                    if(isStage == 'true') {
+                        try {
+                            dir('aws/sdp-testdata') {
+                                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-stage']]) {                                    
+                                    sh "sceptre --dir deployment/ launch-stack stage sdp-testdata"
+                                }
+                            }                           
+                        } catch (Exception e) {
+                            currentBuild.result = "FAILURE"
+                            step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        }
+                    }
+                }
+            }
+        } 
+        stage('ApproveForProd') {
+            steps { 
+                script {
+                    try {
+                        echo "Prod Approval" 
+                    } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                    }
+                }
+            }
+        } 
+        stage('ProdDeploy') {
+            steps { 
+                echo "Deploying Service in Prod Bucket" 
+                script {
+                    if(isProd == 'true') {
+                        try {
+                            dir('aws/sdp-testdata') {
+                                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-prod']]) {                                    
+                                    sh "sceptre --dir deployment/ launch-stack prod sdp-testdata"
+                                }
+                            }                             
+                        } catch (Exception e) {
+                            currentBuild.result = "FAILURE"
+                            step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        }
+                    }
+                }                
+            }
+        }                    
+    } 
+    post
+    {
+        always
+        {
+            // make sure that the Docker image is removed
+            // dir('jenkin/services/crossover') {
+            //     archive "target/**/*"
+            //     junit 'target/surefire-reports/*.xml'
+            // }
+            sh "docker rmi $IMAGE_NAME | true"           
+        }
+    }
+}
