@@ -82,7 +82,7 @@ pipeline {
             steps {
                 script { 
                         try {
-                                dir('xformation') {
+                                dir('sdp') {
                                         //sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
                                         sh 'docker login -u papu -p jaya8668'
                                         sh "make publish"
