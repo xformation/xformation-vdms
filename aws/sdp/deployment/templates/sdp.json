@@ -72,7 +72,7 @@
     "ServiceName": {
       "Description": "The service name of the service",
       "Type": "String",
-      "Default": "sdp"
+      "Default": "sdp-service"
     },
     "VERSION": {
       "Description": "Image Version",
