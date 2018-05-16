@@ -165,7 +165,7 @@
           },
           {
             "Name": "testdata",
-            "Image": "sdp-testdata",
+            "Image": "${EcrUrl}/sdp-testdata",
             "Memory": "10000",
             "MemoryReservation": "128",
             "Essential": true,
