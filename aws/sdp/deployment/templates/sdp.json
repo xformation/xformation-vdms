@@ -171,7 +171,7 @@
             "Essential": true,
             "PortMappings": [
               {
-                "containerPort": 80
+                "ContainerPort": 80
               }
             ]
           }
