@@ -6,7 +6,7 @@ pipeline {
     agent any
     environment { 
         IMAGE_NAME  = 'sdp-service'
-        TEST_IMAGE_NAME  = 'xformation'
+        TEST_IMAGE_NAME  = 'sdp-testdata'
         REGISTRY =  'papu'
         VERSION = 'latest'
     }
