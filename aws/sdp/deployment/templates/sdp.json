@@ -121,9 +121,6 @@
         "ContainerDefinitions": [
           {
             "Name": "sdp-service",
-            "Links": [
-              "testdata"
-            ],
             "Image": {"Fn::Sub": "${EcrUrl}/${ServiceName}:${VERSION}"},
             "PortMappings": [
               {
@@ -162,18 +159,6 @@
                 }
               }
             }
-          },
-          {
-            "Name": "testdata",
-            "Image": {"Fn::Sub": "${EcrUrl}/sdp-testdata:${VERSION}"},
-            "Memory": "10000",
-            "MemoryReservation": "128",
-            "Essential": true,
-            "PortMappings": [
-              {
-                "ContainerPort": 80
-              }
-            ]
           }
         ]
       }
