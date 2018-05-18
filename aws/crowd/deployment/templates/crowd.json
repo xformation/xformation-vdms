@@ -139,7 +139,7 @@
         "ListenerArn": {
           "Ref": "Listener"
         },
-        "Priority": 7
+        "Priority": 9
       }
     },
     "TargetGroup": {
