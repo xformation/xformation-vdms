@@ -182,10 +182,10 @@
           "HealthCheckTimeoutSeconds": 5,
           "HealthyThresholdCount": 2,
           "Matcher": {
-            "HttpCode": "200-299"
+            "HttpCode": "200-499"
           },
           "Name": {
-            "Fn::Sub": "${ProductName}-${EnvironmentName}-master-TG"
+            "Fn::Sub": "${ProductName}-${EnvironmentName}-jenkinmaster-TG"
           },
           "Port": 8080,
           "Protocol": "HTTP",
