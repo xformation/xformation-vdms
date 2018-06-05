@@ -98,7 +98,7 @@
         },
         "LoadBalancers": [
           {
-            "ContainerName": "jira-service",
+            "ContainerName": "jiratest-service",
             "ContainerPort": 8080,
             "TargetGroupArn": {
               "Ref": "TargetGroup"
@@ -108,7 +108,7 @@
         "Role": {
           "Ref": "ServiceRole"
         },
-        "ServiceName": "jira-service",
+        "ServiceName": "jiratest-service",
         "TaskDefinition": {
           "Ref": "TaskDefinition"
         }
@@ -117,15 +117,15 @@
     "TaskDefinition": {
       "Type": "AWS::ECS::TaskDefinition",
       "Properties": {
-        "Family": "jira-service",
+        "Family": "jiratest-service",
         "ContainerDefinitions": [
           {
-            "Name": "jira-service",
+            "Name": "jiratest-service",
             "Image": {"Fn::Sub": "${EcrUrl}/${ServiceName}:${VERSION}"},
             "MountPoints": [
               {
                 "SourceVolume": "my-vol",
-                "ContainerPath": "/opt/jira-home"
+                "ContainerPath": "/opt/jiratest-home"
               }],
             "PortMappings": [
               {
@@ -199,7 +199,7 @@
         "ListenerArn": {
           "Ref": "Listener"
         },
-        "Priority": 2
+        "Priority": 4
       }
     },
     "TargetGroup": {
@@ -214,7 +214,7 @@
           "HttpCode": "200-499"
         },
         "Name": {
-          "Fn::Sub": "${ProductName}-${EnvironmentName}-jira-TG"
+          "Fn::Sub": "${ProductName}-${EnvironmentName}-jiratest-TG"
         },
         "Port": 8080,
         "Protocol": "HTTP",
@@ -222,7 +222,7 @@
           {
             "Key": "Name",
             "Value": {
-              "Fn::Sub": "${ProductName}.${EnvironmentName}-jira-TG"
+              "Fn::Sub": "${ProductName}.${EnvironmentName}-jiratest-TG"
             }
           }
         ],
