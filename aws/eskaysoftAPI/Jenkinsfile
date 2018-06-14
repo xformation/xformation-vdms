@@ -67,7 +67,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('confluencetest') {
+                        dir('eskaysoftAPI') {
                             echo "To Do implement this"
                         }
                     } catch (Exception e) {
