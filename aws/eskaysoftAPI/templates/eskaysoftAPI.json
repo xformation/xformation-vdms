@@ -70,8 +70,12 @@
     "ServiceName": {
       "Description": "The service name of the service",
       "Type": "String",
-      "Default": "crossoverservice"
+      "Default": "eskaysoftAPI"
     },
+    "HostHeader": {
+      "Description": "The Application Load Balancer listener to register with",
+      "Type": "String",
+      "Default": "eskaysoftAPI.synectiks.com",
     "VERSION": {
       "Description": "Image Version",
       "Type": "String",
@@ -97,7 +101,7 @@
         },
         "LoadBalancers": [
           {
-            "ContainerName": "journal-service",
+            "ContainerName": "eskaysoftAPI-service",
             "ContainerPort": 8080,
             "TargetGroupArn": {
               "Ref": "TargetGroup"
@@ -107,7 +111,7 @@
         "Role": {
           "Ref": "ServiceRole"
         },
-        "ServiceName": "journal-service",
+        "ServiceName": "eskaysoftAPI-service",
         "TaskDefinition": {
           "Ref": "TaskDefinition"
         }
@@ -116,10 +120,10 @@
     "TaskDefinition": {
       "Type": "AWS::ECS::TaskDefinition",
       "Properties": {
-        "Family": "journal-service",
+        "Family": "eskaysoftAPI-service",
         "ContainerDefinitions": [
           {
-            "Name": "journal-service",
+            "Name": "eskaysoftAPI-service",
             "Image": {"Fn::Sub": "${EcrUrl}/${ServiceName}:${VERSION}"},
             "MountPoints": [
               {
