@@ -5,7 +5,7 @@ pipeline {
     }
     agent any
     environment { 
-        IMAGE_NAME  = 'eskaysoftAPI'
+        IMAGE_NAME  = 'eskaysoftapi'
         REGISTRY =  'papu'
         VERSION = 'latest'
     }
