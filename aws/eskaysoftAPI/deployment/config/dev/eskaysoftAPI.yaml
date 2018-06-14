@@ -1,4 +1,4 @@
-template_path: templates/eskaysoftapi.json
+template_path: templates/eskaysoftAPI.json
 parameters:
   ProductName: !stack_output backbone::ProductName
   EnvironmentName: !stack_output backbone::EnvironmentName
