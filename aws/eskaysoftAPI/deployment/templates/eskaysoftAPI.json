@@ -30,11 +30,6 @@
       "Description": "The Application Load Balancer listener to register with",
       "Type": "String"
     },
-    "Path": {
-      "Description": "The Application Load Balancer listener to register with",
-      "Type": "String",
-      "Default": "*/*"
-    },
     "LoadbalancerUrl": {
       "Description": "The Application Load Balancer listener to register with",
       "Type": "String"
@@ -62,6 +57,13 @@
       "AllowedPattern": "[a-zA-Z0-9]+",
       "ConstraintDescription": "must contain only alphanumeric characters."
     },
+    "DBJdbcUrl": {
+      "NoEcho": "true",
+      "Description": "The database jdbc url",
+      "Type": "String",
+      "MinLength": "1",
+      "ConstraintDescription": "must contain only alphanumeric characters."
+    },
     "EcrUrl": {
       "Description": "ECR URL",
       "Type": "String",
@@ -70,22 +72,17 @@
     "ServiceName": {
       "Description": "The service name of the service",
       "Type": "String",
-      "Default": "eskaysoftAPI"
+      "Default": "eskaysoftapi"
     },
-    "HostHeader": {
-      "Description": "The Application Load Balancer listener to register with",
-      "Type": "String",
-      "Default": "eskaysoftAPI.synectiks.com",
     "VERSION": {
       "Description": "Image Version",
       "Type": "String",
       "Default": "latest"
     },
-    "UploadDir": {
-      "Description": "The directory where files will be uploaded",
+    "HostHeader": {
+      "Description": "The Application Load Balancer listener to register with",
       "Type": "String",
-      "AllowedPattern": "[a-zA-Z0-9/]+",
-      "Default": "/opt/data"
+      "Default": "eskaysoftapi.synectiks.com"
     }
   },
   "Resources": {
@@ -101,7 +98,7 @@
         },
         "LoadBalancers": [
           {
-            "ContainerName": "eskaysoftAPI-service",
+            "ContainerName": "eskaysoftapi-service",
             "ContainerPort": 8080,
             "TargetGroupArn": {
               "Ref": "TargetGroup"
@@ -111,7 +108,7 @@
         "Role": {
           "Ref": "ServiceRole"
         },
-        "ServiceName": "eskaysoftAPI-service",
+        "ServiceName": "eskaysoftapi-service",
         "TaskDefinition": {
           "Ref": "TaskDefinition"
         }
@@ -120,24 +117,24 @@
     "TaskDefinition": {
       "Type": "AWS::ECS::TaskDefinition",
       "Properties": {
-        "Family": "eskaysoftAPI-service",
+        "Family": "eskaysoftapi-service",
         "ContainerDefinitions": [
           {
-            "Name": "eskaysoftAPI-service",
+            "Name": "eskaysoftapi-service",
             "Image": {"Fn::Sub": "${EcrUrl}/${ServiceName}:${VERSION}"},
             "MountPoints": [
               {
                 "SourceVolume": "my-vol",
-                "ContainerPath": "/opt/data"
+                "ContainerPath": "/opt/"
               }],
             "PortMappings": [
               {
                 "ContainerPort": 8080
               }
             ],
-            "Cpu":  "1024",
-            "Memory": "2000",
             "Essential": "true",
+            "Memory": "10000",
+            "MemoryReservation": "128",
             "Environment": [
               {
                 "Name": "DB_HOST",
@@ -152,8 +149,8 @@
                 "Value": { "Ref": "DBPassword"}
               },
               {
-                "Name": "UploadDir",
-                "Value": { "Ref": "UploadDir"}
+                "Name": "DB_JDBC_URL",
+                "Value": { "Ref": "DBJdbcUrl"}
               }
             ],
             "LogConfiguration": {
@@ -172,7 +169,7 @@
         "Volumes": [
           {
             "Host": {
-              "SourcePath": "/mnt/efs"
+              "SourcePath": "/data/eskaysoft"
             },
             "Name": "my-vol"
           }]
@@ -191,10 +188,10 @@
         ],
         "Conditions": [
           {
-            "Field": "path-pattern",
+            "Field": "host-header",
             "Values": [
               {
-                "Ref": "Path"
+                "Ref": "HostHeader"
               }
             ]
           }
@@ -202,7 +199,7 @@
         "ListenerArn": {
           "Ref": "Listener"
         },
-        "Priority": 1
+        "Priority": 2
       }
     },
     "TargetGroup": {
@@ -214,18 +211,18 @@
         "HealthCheckTimeoutSeconds": 5,
         "HealthyThresholdCount": 2,
         "Matcher": {
-          "HttpCode": "200-299"
+          "HttpCode": "200-499"
         },
         "Name": {
-          "Fn::Sub": "${ProductName}-${EnvironmentName}-Main-TG"
+          "Fn::Sub": "${ProductName}-${EnvironmentName}-eskaysoft-TG"
         },
-        "Port": 80,
+        "Port": 8080,
         "Protocol": "HTTP",
         "Tags": [
           {
             "Key": "Name",
             "Value": {
-              "Fn::Sub": "${ProductName}.${EnvironmentName}-Main-TG"
+              "Fn::Sub": "${ProductName}.${EnvironmentName}-eskaysoft-TG"
             }
           }
         ],
@@ -305,5 +302,4 @@
       }
     }
   }
-}
 }
