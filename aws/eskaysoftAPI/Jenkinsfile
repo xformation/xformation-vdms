@@ -5,6 +5,10 @@ pipeline {
     }
     agent any
     environment { 
+        mvnHome = tool 'maven3'
+        DB_HOST = "${DB_HOST}"
+        DB_USER = "postgres"
+        DB_PASSWORD = "postgres"
         IMAGE_NAME  = 'eskaysoftapi'
         REGISTRY =  'papu'
         VERSION = 'latest'
@@ -19,7 +23,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        git url: 'https://github.com/xformation/docker-builders.git'
+                        git url: 'https://github.com/xformation/eskaysoft.git'
                     } catch (Exception e) {
                         currentBuild.result = "FAILURE"
                         step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
@@ -48,13 +52,82 @@ pipeline {
                 }
             }
         }
+        stage('build') {
+            steps { 
+                script {
+                    try {
+                            sh "make binary"
+                    } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        throw e
+                    }
+                }
+            }
+        } 
+        stage('PreQualityChecks') {
+            parallel {
+                stage('UnitTests') {
+                    steps {
+                        script {
+                            try {
+                                    //sh "make test"
+                                    sh "'${mvnHome}/bin/mvn' surefire-report:report"
+                                    // archive "target/**/*"
+                                    junit 'target/surefire-reports/*.xml'
+                                    publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'target/site', reportFiles: 'surefire-report.html', reportName: 'Unit Reports'])
+                            } catch (Exception e) {
+                                currentBuild.result = "FAILURE"
+                                step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                                throw e
+                            }
+                        }
+                    }
+                }
+                stage('CodeQualityTest') {
+                    steps {
+                        script {
+                            try {
+                                withSonarQubeEnv('mysonar') {
+                                        // requires SonarQube Scanner for Maven 3.2+
+                                        sh "'${mvnHome}/bin/mvn' org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar"
+                                    }
+                            } catch (Exception e) {
+                                currentBuild.result = "FAILURE"
+                                step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                                throw e
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        stage("SonarQube Quality Gate") { 
+            steps {
+                script {
+                    echo "passed"
+                    // try {
+                    //     withSonarQubeEnv('mysonar') {
+                    //         timeout(time: 1, unit: 'HOURS') { 
+                    //             def qg = waitForQualityGate() 
+                    //             if (qg.status != 'OK') {
+                    //             error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                    //             }
+                    //         }
+                    //     }
+                    // } catch (Exception e) {
+                    //     currentBuild.result = "FAILURE"
+                    //     step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                    //     throw e
+                    // }
+                }
+            }
+        }
         stage('CreateImage') {
             steps { 
                 script {
                     try {
-                        dir('eskaysoftAPI') {
                             sh "make image"
-                         }
                     } catch (Exception e) {
                         currentBuild.result = "FAILURE"
                         step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
@@ -67,9 +140,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('eskaysoftAPI') {
                             echo "To Do implement this"
-                        }
                     } catch (Exception e) {
                         currentBuild.result = "FAILURE"
                         step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
@@ -82,11 +153,11 @@ pipeline {
             steps {
                 script { 
                         try {
-                                dir('eskaysoftAPI') {
+                                // withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) {
                                         //sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
                                         sh 'docker login -u papu -p jaya8668'
                                         sh "make publish"
-                                 }
+                            // }                           
                         } catch (Exception e) {
                         currentBuild.result = "FAILURE"
                         step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
@@ -115,7 +186,7 @@ pipeline {
                     if(isDev == 'true') {
                         try {
                             dir('aws/eskaysoftAPI') {
-                                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) { 
+                                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) {                                    
                                     sh "sceptre --dir deployment/ launch-stack dev eskaysoftAPI"
                                 }
                             }
@@ -135,7 +206,7 @@ pipeline {
                         try {
                             dir('aws/eskaysoftAPI') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-test']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack test eskaysoftAPI"
+                                   sh "sceptre --dir deployment/ launch-stack test eskaysoftAPI"
                                 }
                             }                           
                         } catch (Exception e) {
