@@ -71,11 +71,12 @@ pipeline {
                     steps {
                         script {
                             try {
+                                     echo "To Do implement this"
                                     //sh "make test"
-                                    sh "'${mvnHome}/bin/mvn' surefire-report:report"
+                                   // sh "'${mvnHome}/bin/mvn' surefire-report:report"
                                     // archive "target/**/*"
-                                    junit 'target/surefire-reports/*.xml'
-                                    publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'target/site', reportFiles: 'surefire-report.html', reportName: 'Unit Reports'])
+                                    //junit 'target/surefire-reports/*.xml'
+                                    //publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'target/site', reportFiles: 'surefire-report.html', reportName: 'Unit Reports'])
                             } catch (Exception e) {
                                 currentBuild.result = "FAILURE"
                                 step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
@@ -89,8 +90,9 @@ pipeline {
                         script {
                             try {
                                 withSonarQubeEnv('mysonar') {
+                                     echo "To Do implement this"
                                         // requires SonarQube Scanner for Maven 3.2+
-                                        sh "'${mvnHome}/bin/mvn' org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar"
+                                       // sh "'${mvnHome}/bin/mvn' org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar"
                                     }
                             } catch (Exception e) {
                                 currentBuild.result = "FAILURE"
