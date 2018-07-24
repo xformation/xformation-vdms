@@ -9,7 +9,7 @@ pipeline {
         DB_HOST = "${DB_HOST}"
         DB_USER = "postgres"
         DB_PASSWORD = "postgres"
-        IMAGE_NAME  = 'eskaysoft'
+        IMAGE_NAME  = 'eskaysoftdb'
         REGISTRY =  'papu'
         VERSION = 'latest'
     }

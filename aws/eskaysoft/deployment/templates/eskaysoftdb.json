@@ -72,7 +72,7 @@
     "ServiceName": {
       "Description": "The service name of the service",
       "Type": "String",
-      "Default": "eskaysoft"
+      "Default": "eskaysoftdb"
     },
     "VERSION": {
       "Description": "Image Version",
@@ -82,7 +82,7 @@
     "HostHeader": {
       "Description": "The Application Load Balancer listener to register with",
       "Type": "String",
-      "Default": "eskaysoft.synectiks.com"
+      "Default": "eskaysoftdb.synectiks.com"
     }
   },
   "Resources": {
@@ -98,7 +98,7 @@
         },
         "LoadBalancers": [
           {
-            "ContainerName": "eskaysoft-service",
+            "ContainerName": "eskaysoftdb-service",
             "ContainerPort": 8080,
             "TargetGroupArn": {
               "Ref": "TargetGroup"
@@ -108,7 +108,7 @@
         "Role": {
           "Ref": "ServiceRole"
         },
-        "ServiceName": "eskaysoft-service",
+        "ServiceName": "eskaysoftdb-service",
         "TaskDefinition": {
           "Ref": "TaskDefinition"
         }
@@ -117,10 +117,10 @@
     "TaskDefinition": {
       "Type": "AWS::ECS::TaskDefinition",
       "Properties": {
-        "Family": "eskaysoft-service",
+        "Family": "eskaysoftdb-service",
         "ContainerDefinitions": [
           {
-            "Name": "eskaysoft-service",
+            "Name": "eskaysoftdb-service",
             "Image": {"Fn::Sub": "${EcrUrl}/${ServiceName}:${VERSION}"},
             "MountPoints": [
               {
@@ -169,7 +169,7 @@
         "Volumes": [
           {
             "Host": {
-              "SourcePath": "/data/eskaysoft"
+              "SourcePath": "/data/eskaysoftdb"
             },
             "Name": "my-vol"
           }]
@@ -214,7 +214,7 @@
           "HttpCode": "200-499"
         },
         "Name": {
-          "Fn::Sub": "${ProductName}-${EnvironmentName}-eskaysoft-TG"
+          "Fn::Sub": "${ProductName}-${EnvironmentName}-eskaysoftdb-TG"
         },
         "Port": 8080,
         "Protocol": "HTTP",
@@ -222,7 +222,7 @@
           {
             "Key": "Name",
             "Value": {
-              "Fn::Sub": "${ProductName}.${EnvironmentName}-eskaysoft-TG"
+              "Fn::Sub": "${ProductName}.${EnvironmentName}-eskaysoftdb-TG"
             }
           }
         ],
