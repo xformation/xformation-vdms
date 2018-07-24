@@ -56,7 +56,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('eskaysoft') {
+                        dir('eskaysoftdb') {
                             //sh "make binary"
                             echo "passed"
                         }
@@ -132,7 +132,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('eskaysoft') {
+                        dir('eskaysoftdb') {
                             sh "make image"
                         }
                     } catch (Exception e) {
@@ -147,7 +147,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('eskaysoft') {
+                        dir('eskaysoftdb') {
                             echo "To Do implement this"
                         }
                     } catch (Exception e) {
@@ -162,7 +162,7 @@ pipeline {
             steps {
                 script { 
                         try {
-                            dir('eskaysoft') {
+                            dir('eskaysoftdb') {
                                 // withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) {
                                         //sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
                                         sh 'docker login -u papu -p jaya8668'
@@ -195,9 +195,9 @@ pipeline {
                 script {
                     if(isDev == 'true') {
                         try {
-                            dir('aws/eskaysoft') {
+                            dir('aws/eskaysoftdb') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack dev eskaysoft"
+                                    sh "sceptre --dir deployment/ launch-stack dev eskaysoftdb"
                                 }
                             }
                         } catch (Exception e) {
@@ -214,9 +214,9 @@ pipeline {
                 script {
                     if(isTest == 'true') {
                         try {
-                            dir('aws/eskaysoft') {
+                            dir('aws/eskaysoftdb') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-test']]) {                                    
-                                   sh "sceptre --dir deployment/ launch-stack test eskaysoft"
+                                   sh "sceptre --dir deployment/ launch-stack test eskaysoftdb"
                                 }
                             }                           
                         } catch (Exception e) {
@@ -245,9 +245,9 @@ pipeline {
                     echo "Deploying in Stage" 
                     if(isStage == 'true') {
                         try {
-                            dir('aws/eskaysoft') {
+                            dir('aws/eskaysoftdb') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-stage']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack stage eskaysoft"
+                                    sh "sceptre --dir deployment/ launch-stack stage eskaysoftdb"
                                 }
                             }                           
                         } catch (Exception e) {
@@ -276,9 +276,9 @@ pipeline {
                 script {
                     if(isProd == 'true') {
                         try {
-                            dir('aws/eskaysoft') {
+                            dir('aws/eskaysoftdb') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-prod']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack prod eskaysoft"
+                                    sh "sceptre --dir deployment/ launch-stack prod eskaysoftdb"
                                 }
                             }                             
                         } catch (Exception e) {
