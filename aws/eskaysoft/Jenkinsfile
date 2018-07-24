@@ -56,7 +56,9 @@ pipeline {
             steps { 
                 script {
                     try {
+                        dir('eskaysoft') {
                             sh "make binary"
+                        }
                     } catch (Exception e) {
                         currentBuild.result = "FAILURE"
                         step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
@@ -129,7 +131,9 @@ pipeline {
             steps { 
                 script {
                     try {
+                        dir('eskaysoft') {
                             sh "make image"
+                        }
                     } catch (Exception e) {
                         currentBuild.result = "FAILURE"
                         step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
@@ -142,6 +146,8 @@ pipeline {
             steps { 
                 script {
                     try {
+                        dir('eskaysoft') {
+                        }
                             echo "To Do implement this"
                     } catch (Exception e) {
                         currentBuild.result = "FAILURE"
@@ -155,6 +161,8 @@ pipeline {
             steps {
                 script { 
                         try {
+                            dir('eskaysoft') {
+                            }
                                 // withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) {
                                         //sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
                                         sh 'docker login -u papu -p jaya8668'
