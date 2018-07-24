@@ -147,8 +147,8 @@ pipeline {
                 script {
                     try {
                         dir('eskaysoft') {
-                        }
                             echo "To Do implement this"
+                        }
                     } catch (Exception e) {
                         currentBuild.result = "FAILURE"
                         step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
@@ -162,12 +162,11 @@ pipeline {
                 script { 
                         try {
                             dir('eskaysoft') {
-                            }
                                 // withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) {
                                         //sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
                                         sh 'docker login -u papu -p jaya8668'
                                         sh "make publish"
-                            // }                           
+                                 }                           
                         } catch (Exception e) {
                         currentBuild.result = "FAILURE"
                         step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
