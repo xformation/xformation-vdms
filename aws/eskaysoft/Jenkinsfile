@@ -56,8 +56,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                            echo "passed"
-                            //sh "make binary"
+                            sh "make binary"
                     } catch (Exception e) {
                         currentBuild.result = "FAILURE"
                         step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
