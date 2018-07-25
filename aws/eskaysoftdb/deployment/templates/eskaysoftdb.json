@@ -82,7 +82,7 @@
     "HostHeader": {
       "Description": "The Application Load Balancer listener to register with",
       "Type": "String",
-      "Default": "eskaysoftdb.synectiks.com"
+      "Default": "eskaysoft.synectiks.com"
     }
   },
   "Resources": {
