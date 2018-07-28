@@ -133,7 +133,7 @@
               }
             ],
             "Essential": "true",
-            "Memory": "10000",
+            "Memory": "20000",
             "MemoryReservation": "128",
             "Environment": [
               {
@@ -199,7 +199,7 @@
         "ListenerArn": {
           "Ref": "Listener"
         },
-        "Priority": 16
+        "Priority": 15
       }
     },
     "TargetGroup": {
