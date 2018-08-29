@@ -260,7 +260,7 @@
         "AlarmActions": [ { "Ref": "VdmsClusterScaleUpPolicy" } ],
         "Dimensions" : [{
           "Name": "ClusterName",
-          "Value": "jenkins-cluster"
+          "Value": "vdmscluster"
         }],
         "MetricName" : "CPUReservation",
         "Namespace" : "AWS/ECS",
@@ -283,7 +283,7 @@
       }
     },
 
-    "vdmsClusterScaleDownAlarm" : {
+    "VdmsClusterScaleDownAlarm" : {
       "Type" : "AWS::CloudWatch::Alarm",
       "Properties" : {
         "AlarmDescription" : "CPU utilization is under 50% for the last 10 min (change 10 min to 45 min for prod use as you pay by the hour )",
@@ -291,7 +291,7 @@
         "AlarmActions": [ { "Ref": "VdmsClusterScaleDownPolicy" } ],
         "Dimensions" : [{
           "Name": "ClusterName",
-          "Value": "jenkins-cluster"
+          "Value": "vdmscluster"
         }],
         "MetricName" : "CPUReservation",
         "Namespace" : "AWS/ECS",
