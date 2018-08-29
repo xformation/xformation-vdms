@@ -34,6 +34,36 @@
       "Description": "The Application Load Balancer listener to register with",
       "Type": "String"
     },
+    "DBHost": {
+      "Default": "journal",
+      "Description": "The database host url",
+      "Type": "String"
+    },
+    "DBUser": {
+      "NoEcho": "true",
+      "Description": "The database admin account username",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "16",
+      "AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+      "ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
+    },
+    "DBPassword": {
+      "NoEcho": "true",
+      "Description": "The database admin account password",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "41",
+      "AllowedPattern": "[a-zA-Z0-9]+",
+      "ConstraintDescription": "must contain only alphanumeric characters."
+    },
+    "DBJdbcUrl": {
+      "NoEcho": "true",
+      "Description": "The database jdbc url",
+      "Type": "String",
+      "MinLength": "1",
+      "ConstraintDescription": "must contain only alphanumeric characters."
+    },
     "EcrUrl": {
       "Description": "ECR URL",
       "Type": "String",
@@ -42,7 +72,7 @@
     "ServiceName": {
       "Description": "The service name of the service",
       "Type": "String",
-      "Default": "synectiks-erp"
+      "Default": "erp-service"
     },
     "VERSION": {
       "Description": "Image Version",
@@ -68,8 +98,8 @@
         },
         "LoadBalancers": [
           {
-            "ContainerName": "synectiks-erp",
-            "ContainerPort": 8443,
+            "ContainerName": "erp-service",
+            "ContainerPort": 8080,
             "TargetGroupArn": {
               "Ref": "TargetGroup"
             }
@@ -78,7 +108,7 @@
         "Role": {
           "Ref": "ServiceRole"
         },
-        "ServiceName": "synectiks-nexus",
+        "ServiceName": "erp-service",
         "TaskDefinition": {
           "Ref": "TaskDefinition"
         }
@@ -87,19 +117,42 @@
     "TaskDefinition": {
       "Type": "AWS::ECS::TaskDefinition",
       "Properties": {
-        "Family": "synectiks-nexus",
+        "Family": "erp-service",
         "ContainerDefinitions": [
           {
-            "Name": "synectiks-nexus",
+            "Name": "erp-service",
             "Image": {"Fn::Sub": "${EcrUrl}/${ServiceName}:${VERSION}"},
+            "MountPoints": [
+              {
+                "SourceVolume": "my-vol",
+                "ContainerPath": "/opt/erp-home"
+              }],
             "PortMappings": [
               {
                 "ContainerPort": 8443
               }
             ],
-            "Memory": "12000",
-            "MemoryReservation": "128",
             "Essential": "true",
+            "Memory": "10000",
+            "MemoryReservation": "128",
+            "Environment": [
+              {
+                "Name": "DB_HOST",
+                "Value": { "Ref": "DBHost"}
+              },
+              {
+                "Name": "DB_USER",
+                "Value": { "Ref": "DBUser"}
+              },
+              {
+                "Name": "DB_PASSWORD",
+                "Value": { "Ref": "DBPassword"}
+              },
+              {
+                "Name": "DB_JDBC_URL",
+                "Value": { "Ref": "DBJdbcUrl"}
+              }
+            ],
             "LogConfiguration": {
               "LogDriver": "awslogs",
               "Options": {
@@ -112,7 +165,14 @@
               }
             }
           }
-        ]
+        ],
+        "Volumes": [
+          {
+            "Host": {
+              "SourcePath": "/data/erp_home"
+            },
+            "Name": "my-vol"
+          }]
       }
     },
     "ListenerRule": {
@@ -146,8 +206,8 @@
       "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
       "Properties": {
         "HealthCheckIntervalSeconds": 10,
-        "HealthCheckPath": "/",
-        "HealthCheckProtocol": "HTTP",
+        "HealthCheckPath": "/admin",
+        "HealthCheckProtocol": "HTTPS",
         "HealthCheckTimeoutSeconds": 5,
         "HealthyThresholdCount": 2,
         "Matcher": {
@@ -156,8 +216,8 @@
         "Name": {
           "Fn::Sub": "${ProductName}-${EnvironmentName}-erp-TG"
         },
-        "Port": 8081,
-        "Protocol": "HTTP",
+        "Port": 8443,
+        "Protocol": "HTTPS",
         "Tags": [
           {
             "Key": "Name",
@@ -186,7 +246,7 @@
         ],
         "Policies": [
           {
-            "PolicyName": "erp-service-policies",
+            "PolicyName": "product-service-policies",
             "PolicyDocument": {
               "Version": "2012-10-17",
               "Statement": [
