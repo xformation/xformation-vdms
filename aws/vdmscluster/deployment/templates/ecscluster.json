@@ -237,57 +237,30 @@
         }
       }
     },
-    "JenkinsECSAutoScaling": {
-      "Type": "AWS::AutoScaling::AutoScalingGroup",
-      "DependsOn": ["MountTarget"],
-      "Properties": {
-        "VPCZoneIdentifier": [
-          {
-            "Ref": "Subnet"
-          }
-        ],
-        "LaunchConfigurationName": {
-          "Ref": "JenkinsECSLaunchConfiguration"
-        },
-        "MinSize": "2",
-        "MaxSize": "5",
-        "DesiredCapacity": "2",
-        "HealthCheckType": "EC2",
-        "HealthCheckGracePeriod": "400",
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": "jenkins-ecs-instance",
-            "PropagateAtLaunch": "true"
-          }
-        ]
-      }
-    },
-
-    "JenkinsClusterScaleUpPolicy": {
+    "VdmsClusterScaleUpPolicy": {
       "Type" : "AWS::AutoScaling::ScalingPolicy",
       "Properties" : {
         "AdjustmentType" : "ChangeInCapacity",
-        "AutoScalingGroupName" : { "Ref": "JenkinsECSAutoScaling" },
+        "AutoScalingGroupName" : { "Ref": "ECSAutoScalingGroup" },
         "EstimatedInstanceWarmup" : 60,
         "MetricAggregationType" : "Average",
         "PolicyType" : "StepScaling",
         "StepAdjustments" : [ {
           "MetricIntervalLowerBound" : 0,
-          "ScalingAdjustment" : 2
+          "ScalingAdjustment" : 1
         }]
       }
     },
 
-    "JenkinsClusterScaleUpAlarm" : {
+    "VdmsClusterScaleUpAlarm" : {
       "Type" : "AWS::CloudWatch::Alarm",
       "Properties" : {
         "AlarmDescription" : "CPU utilization peaked at 70% during the last minute",
-        "AlarmName" : "JenkinsClusterScaleUpAlarm",
-        "AlarmActions": [ { "Ref": "JenkinsClusterScaleUpPolicy" } ],
+        "AlarmName" : "VdmsClusterScaleUpAlarm",
+        "AlarmActions": [ { "Ref": "VdmsClusterScaleUpPolicy" } ],
         "Dimensions" : [{
           "Name": "ClusterName",
-          "Value": "jenkins-cluster"
+          "Value": "vdmscluster"
         }],
         "MetricName" : "CPUReservation",
         "Namespace" : "AWS/ECS",
@@ -300,25 +273,25 @@
       }
     },
 
-    "JenkinsClusterScaleDownPolicy": {
+    "VdmsClusterScaleDownPolicy": {
       "Type" : "AWS::AutoScaling::ScalingPolicy",
       "Properties" : {
         "AdjustmentType" : "PercentChangeInCapacity",
-        "AutoScalingGroupName" : { "Ref": "JenkinsECSAutoScaling" },
+        "AutoScalingGroupName" : { "Ref": "ECSAutoScalingGroup" },
         "Cooldown"             : "120",
         "ScalingAdjustment"    : "-50"
       }
     },
 
-    "JenkinsClusterScaleDownAlarm" : {
+    "VdmsClusterScaleDownAlarm" : {
       "Type" : "AWS::CloudWatch::Alarm",
       "Properties" : {
         "AlarmDescription" : "CPU utilization is under 50% for the last 10 min (change 10 min to 45 min for prod use as you pay by the hour )",
         "AlarmName" : "JenkinsClusterScaleDownAlarm",
-        "AlarmActions": [ { "Ref": "JenkinsClusterScaleDownPolicy" } ],
+        "AlarmActions": [ { "Ref": "VdmsClusterScaleDownPolicy" } ],
         "Dimensions" : [{
           "Name": "ClusterName",
-          "Value": "jenkins-cluster"
+          "Value": "vdmscluster"
         }],
         "MetricName" : "CPUReservation",
         "Namespace" : "AWS/ECS",
