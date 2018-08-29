@@ -99,7 +99,7 @@
         "LoadBalancers": [
           {
             "ContainerName": "erp-service",
-            "ContainerPort": 8080,
+            "ContainerPort": 8443,
             "TargetGroupArn": {
               "Ref": "TargetGroup"
             }
