@@ -99,7 +99,7 @@
         "LoadBalancers": [
           {
             "ContainerName": "erp-service",
-            "ContainerPort": 8080,
+            "ContainerPort": 8443,
             "TargetGroupArn": {
               "Ref": "TargetGroup"
             }
@@ -199,17 +199,18 @@
         "ListenerArn": {
           "Ref": "Listener"
         },
-        "Priority": 5
+        "Priority": 17
       }
     },
     "TargetGroup": {
       "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
       "Properties": {
-        "HealthCheckIntervalSeconds": 10,
+        "HealthCheckIntervalSeconds": 300,
         "HealthCheckPath": "/admin",
         "HealthCheckProtocol": "HTTPS",
         "HealthCheckTimeoutSeconds": 5,
         "HealthyThresholdCount": 2,
+        "UnhealthyThresholdCount":5,
         "Matcher": {
           "HttpCode": "200-499"
         },
