@@ -209,7 +209,7 @@
         "HealthCheckPath": "/admin",
         "HealthCheckProtocol": "HTTPS",
         "HealthCheckTimeoutSeconds": 5,
-        "HealthyThresholdCount": 1,
+        "HealthyThresholdCount": 2,
         "UnhealthyThresholdCount":5,
         "Matcher": {
           "HttpCode": "200-499"
