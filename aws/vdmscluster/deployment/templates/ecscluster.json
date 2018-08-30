@@ -272,6 +272,40 @@
         "TreatMissingData" : "notBreaching"
       }
     },
+    "VdmsClusterMemScaleUpPolicy": {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref": "ECSAutoScalingGroup" },
+        "EstimatedInstanceWarmup" : 60,
+        "MetricAggregationType" : "Average",
+        "PolicyType" : "StepScaling",
+        "StepAdjustments" : [ {
+          "MetricIntervalLowerBound" : 0,
+          "ScalingAdjustment" : 1
+        }]
+      }
+    },
+    "VdmsClusterMemScaleUpAlarm" : {
+      "Type" : "AWS::CloudWatch::Alarm",
+      "Properties" : {
+        "AlarmDescription" : "Memory utilization peaked at 75% during the last minute",
+        "AlarmName" : "VdmsClusterMemScaleUpAlarm",
+        "AlarmActions": [ { "Ref": "VdmsClusterMemScaleUpPolicy" } ],
+        "Dimensions" : [{
+          "Name": "ClusterName",
+          "Value": "vdmscluster"
+        }],
+        "MetricName" : "MemoryUtilization",
+        "Namespace" : "AWS/ECS",
+        "ComparisonOperator" : "GreaterThanOrEqualToThreshold",
+        "Statistic" : "Maximum",
+        "Threshold" : 75,
+        "Period" : 60,
+        "EvaluationPeriods": 1,
+        "TreatMissingData" : "notBreaching"
+      }
+    },
 
     "VdmsClusterScaleDownPolicy": {
       "Type" : "AWS::AutoScaling::ScalingPolicy",
