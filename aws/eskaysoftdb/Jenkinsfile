@@ -56,7 +56,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('eskaysoftdb') {
+                        dir('eskaysoftAPI-v1') {
                             sh "make binary"
                         }
                     } catch (Exception e) {
@@ -131,7 +131,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('eskaysoftdb') {
+                        dir('eskaysoftAPI-v1') {
                             sh "make image"
                         }
                     } catch (Exception e) {
@@ -146,7 +146,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('eskaysoftdb') {
+                        dir('eskaysoftAPI-v1') {
                             echo "To Do implement this"
                         }
                     } catch (Exception e) {
@@ -161,7 +161,7 @@ pipeline {
             steps {
                 script { 
                         try {
-                            dir('eskaysoftdb') {
+                            dir('eskaysoftAPI-v1') {
                                 // withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) {
                                         //sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
                                         sh 'docker login -u papu -p jaya8668'
