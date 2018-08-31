@@ -307,6 +307,41 @@
       }
     },
 
+    "VdmsClusterMemScaleDownPolicy": {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref": "ECSAutoScalingGroup" },
+        "EstimatedInstanceWarmup" : 60,
+        "MetricAggregationType" : "Average",
+        "PolicyType" : "StepScaling",
+        "StepAdjustments" : [ {
+          "MetricIntervalLowerBound" : 0,
+          "ScalingAdjustment" : 1
+        }]
+      }
+    },
+    "VdmsClusterMemScaleDownAlarm" : {
+      "Type" : "AWS::CloudWatch::Alarm",
+      "Properties" : {
+        "AlarmDescription" : "Memory utilization below 75% during the last minute",
+        "AlarmName" : "VdmsClusterMemScaleDownAlarm",
+        "AlarmActions": [ { "Ref": "VdmsClusterMemScaleDownPolicy" } ],
+        "Dimensions" : [{
+          "Name": "ClusterName",
+          "Value": "vdmscluster"
+        }],
+        "MetricName" : "MemoryUtilization",
+        "Namespace" : "AWS/ECS",
+        "ComparisonOperator" : "GreaterThanOrEqualToThreshold",
+        "Statistic" : "Maximum",
+        "Threshold" : 75,
+        "Period" : 300,
+        "EvaluationPeriods": 1,
+        "TreatMissingData" : "notBreaching"
+      }
+    },
+
     "VdmsClusterScaleDownPolicy": {
       "Type" : "AWS::AutoScaling::ScalingPolicy",
       "Properties" : {
@@ -321,7 +356,7 @@
       "Type" : "AWS::CloudWatch::Alarm",
       "Properties" : {
         "AlarmDescription" : "CPU utilization is under 50% for the last 10 min (change 10 min to 45 min for prod use as you pay by the hour )",
-        "AlarmName" : "JenkinsClusterScaleDownAlarm",
+        "AlarmName" : "VdmsClusterScaleDownAlarm",
         "AlarmActions": [ { "Ref": "VdmsClusterScaleDownPolicy" } ],
         "Dimensions" : [{
           "Name": "ClusterName",
