@@ -23,7 +23,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        git url: 'https://github.com/synectiks/eskaysoftAPI-v1.git'
+                        git url: 'https://github.com/synectiks/eskaysoftAPIV1.git'
                     } catch (Exception e) {
                         currentBuild.result = "FAILURE"
                         step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
@@ -56,7 +56,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('eskaysoftAPI-v1') {
+                        dir('eskaysoftAPIV1') {
                             sh "make binary"
                         }
                     } catch (Exception e) {
@@ -131,7 +131,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('eskaysoftAPI-v1') {
+                        dir('eskaysoftAPIV1') {
                             sh "make image"
                         }
                     } catch (Exception e) {
@@ -146,7 +146,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('eskaysoftAPI-v1') {
+                        dir('eskaysoftAPIV1') {
                             echo "To Do implement this"
                         }
                     } catch (Exception e) {
@@ -161,7 +161,7 @@ pipeline {
             steps {
                 script { 
                         try {
-                            dir('eskaysoftAPI-v1') {
+                            dir('eskaysoftAPIV1') {
                                 // withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) {
                                         //sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
                                         sh 'docker login -u papu -p jaya8668'
