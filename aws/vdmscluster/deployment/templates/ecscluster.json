@@ -262,7 +262,7 @@
           "Name": "ClusterName",
           "Value": "vdmscluster"
         }],
-        "MetricName" : "CPUReservation",
+        "MetricName" : "CPUUtilization",
         "Namespace" : "AWS/ECS",
         "ComparisonOperator" : "GreaterThanOrEqualToThreshold",
         "Statistic" : "Maximum",
@@ -335,7 +335,7 @@
         "Namespace" : "AWS/ECS",
         "ComparisonOperator" : "GreaterThanOrEqualToThreshold",
         "Statistic" : "Maximum",
-        "Threshold" : 75,
+        "Threshold" : 50,
         "Period" : 300,
         "EvaluationPeriods": 1,
         "TreatMissingData" : "notBreaching"
@@ -362,7 +362,7 @@
           "Name": "ClusterName",
           "Value": "vdmscluster"
         }],
-        "MetricName" : "CPUReservation",
+        "MetricName" : "CPUUtilization",
         "Namespace" : "AWS/ECS",
         "ComparisonOperator" : "LessThanThreshold",
         "Statistic" : "Maximum",
