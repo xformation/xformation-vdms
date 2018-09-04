@@ -176,10 +176,10 @@
       "TargetGroup": {
         "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
         "Properties": {
-          "HealthCheckIntervalSeconds": 10,
+          "HealthCheckIntervalSeconds": 300,
           "HealthCheckPath": "/",
           "HealthCheckProtocol": "HTTP",
-          "HealthCheckTimeoutSeconds": 5,
+          "HealthCheckTimeoutSeconds": 60,
           "HealthyThresholdCount": 2,
           "Matcher": {
             "HttpCode": "200-499"
