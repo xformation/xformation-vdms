@@ -256,7 +256,6 @@
       "Type" : "AWS::CloudWatch::Alarm",
       "Properties" : {
         "AlarmDescription" : "CPU utilization peaked at 70% during the last minute",
-        "AlarmName" : "VdmsClusterScaleUpAlarm",
         "AlarmActions": [ { "Ref": "VdmsClusterScaleUpPolicy" } ],
         "Dimensions" : [{
           "Name": "ClusterName",
@@ -266,7 +265,7 @@
         "Namespace" : "AWS/ECS",
         "ComparisonOperator" : "GreaterThanOrEqualToThreshold",
         "Statistic" : "Maximum",
-        "Threshold" : 70,
+        "Threshold" : 75,
         "Period" : 60,
         "EvaluationPeriods": 1,
         "TreatMissingData" : "notBreaching"
@@ -290,7 +289,6 @@
       "Type" : "AWS::CloudWatch::Alarm",
       "Properties" : {
         "AlarmDescription" : "Memory utilization peaked at 75% during the last minute",
-        "AlarmName" : "VdmsClusterMemScaleUpAlarm",
         "AlarmActions": [ { "Ref": "VdmsClusterMemScaleUpPolicy" } ],
         "Dimensions" : [{
           "Name": "ClusterName",
@@ -325,7 +323,6 @@
       "Type" : "AWS::CloudWatch::Alarm",
       "Properties" : {
         "AlarmDescription" : "Memory utilization below 75% during the last minute",
-        "AlarmName" : "VdmsClusterMemScaleDownAlarm",
         "AlarmActions": [ { "Ref": "VdmsClusterMemScaleDownPolicy" } ],
         "Dimensions" : [{
           "Name": "ClusterName",
@@ -335,8 +332,8 @@
         "Namespace" : "AWS/ECS",
         "ComparisonOperator" : "GreaterThanOrEqualToThreshold",
         "Statistic" : "Maximum",
-        "Threshold" : 50,
-        "Period" : 300,
+        "Threshold" : 60,
+        "Period" : 60,
         "EvaluationPeriods": 1,
         "TreatMissingData" : "notBreaching"
       }
@@ -356,7 +353,6 @@
       "Type" : "AWS::CloudWatch::Alarm",
       "Properties" : {
         "AlarmDescription" : "CPU utilization is under 50% for the last 10 min (change 10 min to 45 min for prod use as you pay by the hour )",
-        "AlarmName" : "VdmsClusterScaleDownAlarm",
         "AlarmActions": [ { "Ref": "VdmsClusterScaleDownPolicy" } ],
         "Dimensions" : [{
           "Name": "ClusterName",
@@ -366,8 +362,8 @@
         "Namespace" : "AWS/ECS",
         "ComparisonOperator" : "LessThanThreshold",
         "Statistic" : "Maximum",
-        "Threshold" : 50,
-        "Period" : 600,
+        "Threshold" : 60,
+        "Period" : 60,
         "EvaluationPeriods": 1,
         "TreatMissingData" : "notBreaching"
       }
@@ -828,7 +824,7 @@
         "Threshold": "75",
         "AlarmDescription":
           "Alarm if CPU too high or metric disappears indicating instance is down",
-        "Period": "300",
+        "Period": "60",
         "AlarmActions": [
           {
             "Ref": "ScaleUpSlavePolicy"
@@ -855,7 +851,7 @@
         "Threshold": "75",
         "AlarmDescription":
           "Alarm if Memory too high or metric disappears indicating instance is down",
-        "Period": "300",
+        "Period": "60",
         "AlarmActions": [
           {
             "Ref": "ScaleUpSlavePolicy"
