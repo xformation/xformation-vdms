@@ -237,141 +237,6 @@
         }
       }
     },
-    "VdmsClusterScaleUpPolicy": {
-      "Type" : "AWS::AutoScaling::ScalingPolicy",
-      "Properties" : {
-        "AdjustmentType" : "ChangeInCapacity",
-        "AutoScalingGroupName" : { "Ref": "ECSAutoScalingGroup" },
-        "EstimatedInstanceWarmup" : 60,
-        "MetricAggregationType" : "Average",
-        "PolicyType" : "StepScaling",
-        "StepAdjustments" : [ {
-          "MetricIntervalLowerBound" : 0,
-          "ScalingAdjustment" : 1
-        }]
-      }
-    },
-
-    "VdmsClusterScaleUpAlarm" : {
-      "Type" : "AWS::CloudWatch::Alarm",
-      "Properties" : {
-        "AlarmDescription" : "CPU utilization peaked at 70% during the last minute",
-        "AlarmName" : "VdmsClusterScaleUpAlarm",
-        "AlarmActions": [ { "Ref": "VdmsClusterScaleUpPolicy" } ],
-        "Dimensions" : [{
-          "Name": "ClusterName",
-          "Value": "vdmscluster"
-        }],
-        "MetricName" : "CPUUtilization",
-        "Namespace" : "AWS/ECS",
-        "ComparisonOperator" : "GreaterThanOrEqualToThreshold",
-        "Statistic" : "Maximum",
-        "Threshold" : 70,
-        "Period" : 60,
-        "EvaluationPeriods": 1,
-        "TreatMissingData" : "notBreaching"
-      }
-    },
-    "VdmsClusterMemScaleUpPolicy": {
-      "Type" : "AWS::AutoScaling::ScalingPolicy",
-      "Properties" : {
-        "AdjustmentType" : "ChangeInCapacity",
-        "AutoScalingGroupName" : { "Ref": "ECSAutoScalingGroup" },
-        "EstimatedInstanceWarmup" : 60,
-        "MetricAggregationType" : "Average",
-        "PolicyType" : "StepScaling",
-        "StepAdjustments" : [ {
-          "MetricIntervalLowerBound" : 0,
-          "ScalingAdjustment" : 1
-        }]
-      }
-    },
-    "VdmsClusterMemScaleUpAlarm" : {
-      "Type" : "AWS::CloudWatch::Alarm",
-      "Properties" : {
-        "AlarmDescription" : "Memory utilization peaked at 75% during the last minute",
-        "AlarmName" : "VdmsClusterMemScaleUpAlarm",
-        "AlarmActions": [ { "Ref": "VdmsClusterMemScaleUpPolicy" } ],
-        "Dimensions" : [{
-          "Name": "ClusterName",
-          "Value": "vdmscluster"
-        }],
-        "MetricName" : "MemoryUtilization",
-        "Namespace" : "AWS/ECS",
-        "ComparisonOperator" : "GreaterThanOrEqualToThreshold",
-        "Statistic" : "Maximum",
-        "Threshold" : 75,
-        "Period" : 60,
-        "EvaluationPeriods": 1,
-        "TreatMissingData" : "notBreaching"
-      }
-    },
-
-    "VdmsClusterMemScaleDownPolicy": {
-      "Type" : "AWS::AutoScaling::ScalingPolicy",
-      "Properties" : {
-        "AdjustmentType" : "ChangeInCapacity",
-        "AutoScalingGroupName" : { "Ref": "ECSAutoScalingGroup" },
-        "EstimatedInstanceWarmup" : 60,
-        "MetricAggregationType" : "Average",
-        "PolicyType" : "StepScaling",
-        "StepAdjustments" : [ {
-          "MetricIntervalLowerBound" : 0,
-          "ScalingAdjustment" : 1
-        }]
-      }
-    },
-    "VdmsClusterMemScaleDownAlarm" : {
-      "Type" : "AWS::CloudWatch::Alarm",
-      "Properties" : {
-        "AlarmDescription" : "Memory utilization below 75% during the last minute",
-        "AlarmName" : "VdmsClusterMemScaleDownAlarm",
-        "AlarmActions": [ { "Ref": "VdmsClusterMemScaleDownPolicy" } ],
-        "Dimensions" : [{
-          "Name": "ClusterName",
-          "Value": "vdmscluster"
-        }],
-        "MetricName" : "MemoryUtilization",
-        "Namespace" : "AWS/ECS",
-        "ComparisonOperator" : "GreaterThanOrEqualToThreshold",
-        "Statistic" : "Maximum",
-        "Threshold" : 50,
-        "Period" : 300,
-        "EvaluationPeriods": 1,
-        "TreatMissingData" : "notBreaching"
-      }
-    },
-
-    "VdmsClusterScaleDownPolicy": {
-      "Type" : "AWS::AutoScaling::ScalingPolicy",
-      "Properties" : {
-        "AdjustmentType" : "PercentChangeInCapacity",
-        "AutoScalingGroupName" : { "Ref": "ECSAutoScalingGroup" },
-        "Cooldown"             : "120",
-        "ScalingAdjustment"    : "-50"
-      }
-    },
-
-    "VdmsClusterScaleDownAlarm" : {
-      "Type" : "AWS::CloudWatch::Alarm",
-      "Properties" : {
-        "AlarmDescription" : "CPU utilization is under 50% for the last 10 min (change 10 min to 45 min for prod use as you pay by the hour )",
-        "AlarmName" : "VdmsClusterScaleDownAlarm",
-        "AlarmActions": [ { "Ref": "VdmsClusterScaleDownPolicy" } ],
-        "Dimensions" : [{
-          "Name": "ClusterName",
-          "Value": "vdmscluster"
-        }],
-        "MetricName" : "CPUUtilization",
-        "Namespace" : "AWS/ECS",
-        "ComparisonOperator" : "LessThanThreshold",
-        "Statistic" : "Maximum",
-        "Threshold" : 50,
-        "Period" : 600,
-        "EvaluationPeriods": 1,
-        "TreatMissingData" : "notBreaching"
-      }
-    },
     "ECSLaunchConfigurationWithEFS": {
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Condition": "CreateClusterWithEfs",
@@ -820,6 +685,17 @@
         "ScalingAdjustment": "1"
       }
     },
+    "ScaleDownSlavePolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "ECSAutoScalingGroup"
+        },
+        "Cooldown": "60",
+        "ScalingAdjustment": "-1"
+      }
+    },
     "CpuAlarmHigh": {
       "Type": "AWS::CloudWatch::Alarm",
       "Properties": {
@@ -828,7 +704,7 @@
         "Threshold": "75",
         "AlarmDescription":
           "Alarm if CPU too high or metric disappears indicating instance is down",
-        "Period": "300",
+        "Period": "60",
         "AlarmActions": [
           {
             "Ref": "ScaleUpSlavePolicy"
@@ -855,7 +731,7 @@
         "Threshold": "75",
         "AlarmDescription":
           "Alarm if Memory too high or metric disappears indicating instance is down",
-        "Period": "300",
+        "Period": "60",
         "AlarmActions": [
           {
             "Ref": "ScaleUpSlavePolicy"
@@ -871,7 +747,61 @@
           }
         ],
         "ComparisonOperator": "GreaterThanThreshold",
-        "MetricName": "MemoryReservation"
+        "MetricName": "MemoryUtilization"
+      }
+    },
+    "MemoryAlarmLow": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "EvaluationPeriods": "1",
+        "Statistic": "Average",
+        "Threshold": "50",
+        "AlarmDescription":
+          "Alarm if Memory too Low or metric disappears indicating instance is down",
+        "Period": "60",
+        "AlarmActions": [
+          {
+            "Ref": "ScaleDownSlavePolicy"
+          }
+        ],
+        "Namespace": "AWS/ECS",
+        "Dimensions": [
+          {
+            "Name": "ClusterName",
+            "Value": {
+              "Ref": "ECSCluster"
+            }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold",
+        "MetricName": "MemoryUtilization"
+      }
+    },
+    "CpuAlarmLow": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "EvaluationPeriods": "1",
+        "Statistic": "Average",
+        "Threshold": "77",
+        "AlarmDescription":
+          "Alarm if Memory too high or metric disappears indicating instance is down",
+        "Period": "60",
+        "AlarmActions": [
+          {
+            "Ref": "ScaleDownSlavePolicy"
+          }
+        ],
+        "Namespace": "AWS/ECS",
+        "Dimensions": [
+          {
+            "Name": "ClusterName",
+            "Value": {
+              "Ref": "ECSCluster"
+            }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold",
+        "MetricName": "CPUUtilization"
       }
     }
   },
