@@ -72,7 +72,7 @@
     "ServiceName": {
       "Description": "The service name of the service",
       "Type": "String",
-      "Default": "eskaysoftui"
+      "Default": "eskaysoftUI"
     },
     "VERSION": {
       "Description": "Image Version",
@@ -117,7 +117,7 @@
     "TaskDefinition": {
       "Type": "AWS::ECS::TaskDefinition",
       "Properties": {
-        "Family": "eskaysoftui-service",
+        "Family": "eskaysoftUI-service",
         "ContainerDefinitions": [
           {
             "Name": "eskaysoftui-service",
@@ -133,8 +133,8 @@
               }
             ],
             "Essential": "true",
-            "Memory": "10000",
-            "MemoryReservation": "128",
+            "Memory": "20000",
+            "MemoryReservation": "256",
             "Environment": [
               {
                 "Name": "DB_HOST",
@@ -169,7 +169,7 @@
         "Volumes": [
           {
             "Host": {
-              "SourcePath": "/data/eskaysoft"
+              "SourcePath": "/data/eskaysoftui"
             },
             "Name": "my-vol"
           }]
@@ -214,7 +214,7 @@
           "HttpCode": "200-499"
         },
         "Name": {
-          "Fn::Sub": "${ProductName}-${EnvironmentName}-eskaysoft-TG"
+          "Fn::Sub": "${ProductName}-${EnvironmentName}-eskaysoftui-TG"
         },
         "Port": 8080,
         "Protocol": "HTTP",
@@ -222,7 +222,7 @@
           {
             "Key": "Name",
             "Value": {
-              "Fn::Sub": "${ProductName}.${EnvironmentName}-eskaysoft-TG"
+              "Fn::Sub": "${ProductName}.${EnvironmentName}-eskaysoftui-TG"
             }
           }
         ],
