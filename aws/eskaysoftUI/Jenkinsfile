@@ -56,7 +56,9 @@ pipeline {
             steps { 
                 script {
                     try {
-                            sh "make binary"
+                        dir('eskaysoftui')
+                            //sh "make binary"
+                            echo "passed"
                     } catch (Exception e) {
                         currentBuild.result = "FAILURE"
                         step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
@@ -129,6 +131,7 @@ pipeline {
             steps { 
                 script {
                     try {
+                        dir('eskaysoftui')
                             sh "make image"
                     } catch (Exception e) {
                         currentBuild.result = "FAILURE"
