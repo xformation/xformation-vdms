@@ -5,10 +5,6 @@ pipeline {
     }
     agent any
     environment { 
-        mvnHome = tool 'maven3'
-        DB_HOST = "${DB_HOST}"
-        DB_USER = "postgres"
-        DB_PASSWORD = "postgres"
         IMAGE_NAME  = 'eskaysoftui'
         REGISTRY =  'papu'
         VERSION = 'latest'
@@ -23,7 +19,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        git url: 'https://github.com/xformation/docker-builders.git'
+                        git url: 'https://github.com/synectiks/eskaysoftv2.git'
                     } catch (Exception e) {
                         currentBuild.result = "FAILURE"
                         step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
@@ -56,10 +52,22 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('eskaysoftui') {
-                            //sh "make binary"
-                            echo "passed"
-                        }
+                            sh "make binary"
+                    } catch (Exception e) {
+                        currentBuild.result = "FAILURE"
+                        step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
+                        throw e
+                    }
+                }
+            }
+        } 
+        stage('uploadbinaryins3') {
+            steps { 
+                script {
+                    try {
+                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) {                                    
+                        sh "make uploadins3"
+                    }                           
                     } catch (Exception e) {
                         currentBuild.result = "FAILURE"
                         step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
@@ -133,9 +141,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('eskaysoftui') {
-                            sh "make image"
-                        }
+                        sh "make image"
                     } catch (Exception e) {
                         currentBuild.result = "FAILURE"
                         step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
@@ -148,9 +154,7 @@ pipeline {
             steps { 
                 script {
                     try {
-                        dir('eskaysoftui') {
                             echo "To Do implement this"
-                        }
                     } catch (Exception e) {
                         currentBuild.result = "FAILURE"
                         step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
@@ -163,12 +167,8 @@ pipeline {
             steps {
                 script { 
                         try {
-                            dir('eskaysoftui') {
-                                // withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) {
-                                        //sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
-                                        sh 'docker login -u papu -p jaya8668'
-                                        sh "make publish"
-                                 }                           
+                                sh 'docker login -u papu -p jaya8668'
+                                sh "make publish"
                         } catch (Exception e) {
                         currentBuild.result = "FAILURE"
                         step([$class: 'InfluxDbPublisher', customData: null, customDataMap: null, customPrefix: null, target: 'grafana'])
@@ -196,9 +196,9 @@ pipeline {
                 script {
                     if(isDev == 'true') {
                         try {
-                            dir('aws/eskaysoftUI') {
+                            dir('aws/eskaysoftui') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack dev eskaysoftUI"
+                                    sh "sceptre --dir deployment/ launch-stack dev eskaysoftui"
                                 }
                             }
                         } catch (Exception e) {
@@ -215,9 +215,9 @@ pipeline {
                 script {
                     if(isTest == 'true') {
                         try {
-                            dir('aws/eskaysoftUI') {
+                            dir('aws/eskaysoftui') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-test']]) {                                    
-                                   sh "sceptre --dir deployment/ launch-stack test eskaysoftUI"
+                                   sh "sceptre --dir deployment/ launch-stack test eskaysoftui"
                                 }
                             }                           
                         } catch (Exception e) {
@@ -246,9 +246,9 @@ pipeline {
                     echo "Deploying in Stage" 
                     if(isStage == 'true') {
                         try {
-                            dir('aws/eskaysoftUI') {
+                            dir('aws/eskaysoftui') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-stage']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack stage eskaysoftUI"
+                                    sh "sceptre --dir deployment/ launch-stack stage eskaysoftui"
                                 }
                             }                           
                         } catch (Exception e) {
@@ -277,9 +277,9 @@ pipeline {
                 script {
                     if(isProd == 'true') {
                         try {
-                            dir('aws/eskaysoftUI') {
+                            dir('aws/eskaysoftui') {
                                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-prod']]) {                                    
-                                    sh "sceptre --dir deployment/ launch-stack prod eskaysoftUI"
+                                    sh "sceptre --dir deployment/ launch-stack prod eskaysoftui"
                                 }
                             }                             
                         } catch (Exception e) {
