@@ -34,36 +34,6 @@
       "Description": "The Application Load Balancer listener to register with",
       "Type": "String"
     },
-    "DBHost": {
-      "Default": "journal",
-      "Description": "The database host url",
-      "Type": "String"
-    },
-    "DBUser": {
-      "NoEcho": "true",
-      "Description": "The database admin account username",
-      "Type": "String",
-      "MinLength": "1",
-      "MaxLength": "16",
-      "AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
-      "ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
-    },
-    "DBPassword": {
-      "NoEcho": "true",
-      "Description": "The database admin account password",
-      "Type": "String",
-      "MinLength": "1",
-      "MaxLength": "41",
-      "AllowedPattern": "[a-zA-Z0-9]+",
-      "ConstraintDescription": "must contain only alphanumeric characters."
-    },
-    "DBJdbcUrl": {
-      "NoEcho": "true",
-      "Description": "The database jdbc url",
-      "Type": "String",
-      "MinLength": "1",
-      "ConstraintDescription": "must contain only alphanumeric characters."
-    },
     "EcrUrl": {
       "Description": "ECR URL",
       "Type": "String",
@@ -72,7 +42,7 @@
     "ServiceName": {
       "Description": "The service name of the service",
       "Type": "String",
-      "Default": "eskaysoftUI"
+      "Default": "eskaysoftui"
     },
     "VERSION": {
       "Description": "Image Version",
@@ -98,8 +68,8 @@
         },
         "LoadBalancers": [
           {
-            "ContainerName": "eskaysoftui-service",
-            "ContainerPort": 8080,
+            "ContainerName": "eskaysoftui",
+            "ContainerPort": 80,
             "TargetGroupArn": {
               "Ref": "TargetGroup"
             }
@@ -108,7 +78,7 @@
         "Role": {
           "Ref": "ServiceRole"
         },
-        "ServiceName": "eskaysoftui-service",
+        "ServiceName": "eskaysoftui",
         "TaskDefinition": {
           "Ref": "TaskDefinition"
         }
@@ -117,42 +87,19 @@
     "TaskDefinition": {
       "Type": "AWS::ECS::TaskDefinition",
       "Properties": {
-        "Family": "eskaysoftUI-service",
+        "Family": "eskaysoftui-service",
         "ContainerDefinitions": [
           {
-            "Name": "eskaysoftui-service",
+            "Name": "eskaysoftui",
             "Image": {"Fn::Sub": "${EcrUrl}/${ServiceName}:${VERSION}"},
-            "MountPoints": [
-              {
-                "SourceVolume": "my-vol",
-                "ContainerPath": "/opt/"
-              }],
             "PortMappings": [
               {
-                "ContainerPort": 8080
+                "ContainerPort": 80
               }
             ],
             "Essential": "true",
-            "Memory": "20000",
+            "Memory": "10000",
             "MemoryReservation": "256",
-            "Environment": [
-              {
-                "Name": "DB_HOST",
-                "Value": { "Ref": "DBHost"}
-              },
-              {
-                "Name": "DB_USER",
-                "Value": { "Ref": "DBUser"}
-              },
-              {
-                "Name": "DB_PASSWORD",
-                "Value": { "Ref": "DBPassword"}
-              },
-              {
-                "Name": "DB_JDBC_URL",
-                "Value": { "Ref": "DBJdbcUrl"}
-              }
-            ],
             "LogConfiguration": {
               "LogDriver": "awslogs",
               "Options": {
@@ -165,14 +112,7 @@
               }
             }
           }
-        ],
-        "Volumes": [
-          {
-            "Host": {
-              "SourcePath": "/data/eskaysoftui"
-            },
-            "Name": "my-vol"
-          }]
+        ]
       }
     },
     "ListenerRule": {
