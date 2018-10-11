@@ -66,7 +66,7 @@ pipeline {
                 script {
                     try {
                         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'synectiks-dev']]) {                                    
-                        sh "make upoloadins3"
+                        sh "make uploadins3"
                     }                           
                     } catch (Exception e) {
                         currentBuild.result = "FAILURE"
