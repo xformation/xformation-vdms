@@ -1,0 +1,784 @@
+{
+    "Description": "This template deploys a VPC, with a pair of public and private subnets spread  across two Availabilty Zones. It deploys an Internet Gateway, with a default  route on the public subnets. It deploys a pair of NAT Gateways (one in each AZ),  and default routes for them in the private subnets.\n",
+    "Parameters": {
+        "ProductName": {
+            "Description": "The Product Name, that we tag with every resource , so that we can track resources for products",
+            "Type": "String"
+        },
+        "EnvironmentName": {
+            "Description": "An environment name that will be prefixed to resource names, also every resource we tag with env",
+            "Type": "String"
+        },
+        "VpcCIDR": {
+            "Description": "Please enter the IP range (CIDR notation) for this VPC",
+            "Type": "String",
+            "Default": "10.192.0.0/16"
+        },
+        "PublicSubnetCIDR": {
+            "Description": "Please enter the IP range (CIDR notation) for the public subnet in the first Availability Zone",
+            "Type": "String",
+            "Default": "10.192.10.0/24"
+        },
+        "PrivateSubnetCIDR": {
+            "Description": "Please enter the IP range (CIDR notation) for the private subnet in the first Availability Zone",
+            "Type": "String",
+            "Default": "10.192.20.0/24"
+        },
+        "KeyPairName": {
+            "Type": "AWS::EC2::KeyPair::KeyName",
+            "Description":
+              "Name of an existing EC2 KeyPair to enable SSH access to the ECS instances",
+            "Default": "mykey"
+        },
+        "ServerAccess": {
+            "Type": "String",
+            "Description":
+              "CIDR IP range allowed to login to the NAT instance",
+            "Default": "0.0.0.0/0"
+        }
+    },
+    "Mappings": {
+        "NatRegionMap": {
+            "us-east-1": {
+                "AMI": "ami-eca289fb"
+              },
+              "us-east-2": {
+                "AMI": "ami-446f3521"
+              },
+              "us-west-1": {
+                "AMI": "ami-9fadf8ff"
+              },
+              "us-west-2": {
+                "AMI": "ami-7abc111a"
+              },
+              "eu-west-1": {
+                "AMI": "ami-a1491ad2"
+              },
+              "eu-central-1": {
+                "AMI": "ami-54f5303b"
+              },
+              "ap-northeast-1": {
+                "AMI": "ami-9cd57ffd"
+              },
+              "ap-southeast-1": {
+                "AMI": "ami-a900a3ca"
+              },
+              "ap-southeast-2": {
+                "AMI": "ami-5781be34"
+              }        
+        }
+      },
+    "Resources": {
+        "VPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "CidrBlock": {
+                    "Ref": "VpcCIDR"
+                },
+                "EnableDnsSupport": "true",
+                "EnableDnsHostnames": "true",
+                "InstanceTenancy": "default",
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Sub": "${ProductName}.${EnvironmentName}.vpc"
+                        }
+                    },
+                    {
+                        "Key": "ProductName",
+                        "Value": {
+                            "Ref": "ProductName"
+                        }
+                    },
+                    {
+                        "Key": "Environment",
+                        "Value": {
+                            "Ref": "EnvironmentName"
+                        }
+                    }
+                ]
+            }
+        },
+        "InternetGateway": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Properties": {
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Sub": "${ProductName}.${EnvironmentName}.InternetGateway"
+                        }
+                    },
+                    {
+                        "Key": "ProductName",
+                        "Value": {
+                            "Ref": "ProductName"
+                        }
+                    },
+                    {
+                        "Key": "Environment",
+                        "Value": {
+                            "Ref": "EnvironmentName"
+                        }
+                    }
+                ]
+            }
+        },
+        "InternetGatewayAttachment": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "InternetGatewayId": {
+                    "Ref": "InternetGateway"
+                },
+                "VpcId": {
+                    "Ref": "VPC"
+                }
+            }
+        },
+        "PublicSubnet": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        0,
+                        {
+                            "Fn::GetAZs": ""
+                        }
+                    ]
+                },
+                "CidrBlock": {
+                    "Ref": "PublicSubnetCIDR"
+                },
+                "MapPublicIpOnLaunch": true,
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Sub": "${ProductName}.${EnvironmentName}.Public-Subnet(AZ1)"
+                        }
+                    },
+                    {
+                        "Key": "ProductName",
+                        "Value": {
+                            "Ref": "ProductName"
+                        }
+                    },
+                    {
+                        "Key": "Environment",
+                        "Value": {
+                            "Ref": "EnvironmentName"
+                        }
+                    }
+                ]
+            }
+        },
+        "PublicRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Sub": "${ProductName}.${EnvironmentName}.Public-Routes"
+                        }
+                    },
+                    {
+                        "Key": "ProductName",
+                        "Value": {
+                            "Ref": "ProductName"
+                        }
+                    },
+                    {
+                        "Key": "Environment",
+                        "Value": {
+                            "Ref": "EnvironmentName"
+                        }
+                    }
+                ]
+            }
+        },
+        "DefaultPublicRoute": {
+            "Type": "AWS::EC2::Route",
+            "DependsOn" : ["PublicRouteTable", "InternetGatewayAttachment"],
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": {
+                    "Ref": "InternetGateway"
+                }
+            }
+        },
+        "PublicSubnetRouteTableAssociation": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "DependsOn" : ["PublicSubnet", "PublicRouteTable"],
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                },
+                "SubnetId": {
+                    "Ref": "PublicSubnet"
+                }
+            }
+        },
+        "NatSecurityGroup" : {
+            "DependsOn" : ["VPC"],
+            "Type" : "AWS::EC2::SecurityGroup",
+            "Properties" : {
+            "GroupDescription" : "NAT Security Group",
+            "VpcId" : { "Ref" : "VPC" },
+            "SecurityGroupIngress" : [{
+            "IpProtocol" : "tcp",
+            "FromPort" : "22",
+            "ToPort" : "22",
+            "CidrIp" : { "Ref" : "ServerAccess" }
+            },{
+            "IpProtocol" : "tcp",
+            "FromPort" : "3389",
+            "ToPort" : "3389",
+            "CidrIp" : { "Ref" : "ServerAccess" }
+            }],
+            "Tags" : [
+            { "Key" : "Name", "Value" : "NAT Security Group" }
+            ]
+            }
+        },
+        "NatSecurityGroupIngress1" : {
+            "DependsOn" : ["NatSecurityGroup"],
+            "Type": "AWS::EC2::SecurityGroupIngress",
+            "Properties": {
+            "GroupId": { "Ref": "NatSecurityGroup" },
+            "IpProtocol": "icmp",
+            "FromPort": -1,
+            "ToPort": -1,
+            "SourceSecurityGroupId": { "Ref": "NatSecurityGroup" }
+            }
+        },
+        "NatSecurityGroupIngress22" : {
+            "DependsOn" : ["NatSecurityGroup"],
+            "Type": "AWS::EC2::SecurityGroupIngress",
+            "Properties": {
+            "GroupId": { "Ref": "NatSecurityGroup" },
+            "IpProtocol": "tcp",
+            "FromPort": 22,
+            "ToPort": 22,
+            "SourceSecurityGroupId": { "Ref": "NatSecurityGroup" }
+            }
+            },
+            "NatSecurityGroupIngress3389" : {
+            "DependsOn" : ["NatSecurityGroup"],
+            "Type": "AWS::EC2::SecurityGroupIngress",
+            "Properties": {
+            "GroupId": { "Ref": "NatSecurityGroup" },
+            "IpProtocol": "tcp",
+            "FromPort": 3389,
+            "ToPort": 3389,
+            "SourceSecurityGroupId": { "Ref": "NatSecurityGroup" }
+            }
+            },
+            "NatSecurityGroupIngress80" : {
+            "DependsOn" : ["NatSecurityGroup"],
+            "Type": "AWS::EC2::SecurityGroupIngress",
+            "Properties": {
+            "GroupId": { "Ref": "NatSecurityGroup" },
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "SourceSecurityGroupId": { "Ref": "NatSecurityGroup" }
+            }
+            },
+            "NatSecurityGroupIngress443" : {
+            "DependsOn" : ["NatSecurityGroup"],
+            "Type": "AWS::EC2::SecurityGroupIngress",
+            "Properties": {
+            "GroupId": { "Ref": "NatSecurityGroup" },
+            "IpProtocol": "tcp",
+            "FromPort": 443,
+            "ToPort": 443,
+            "SourceSecurityGroupId": { "Ref": "NatSecurityGroup" }
+            }
+            } ,
+            "JumpboxInstanceProfile": {
+                "Type": "AWS::IAM::InstanceProfile",
+                "Properties": {
+                  "Path": "/",
+                  "Roles": [
+                    { "Ref": "JumpboxRole" }
+                  ]
+                }
+              },
+            "JumpboxRole": {
+                "Type": "AWS::IAM::Role",
+                "Properties": {
+                  "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Principal": {
+                          "Service": "ec2.amazonaws.com"
+                        },
+                        "Action": "sts:AssumeRole"
+                      }
+                    ]
+                  }
+                }
+            },
+            "NAT" : {
+                "DependsOn" : ["PublicSubnet", "NatSecurityGroup"],
+                "Type" : "AWS::EC2::Instance",
+                "Properties" : {
+                "IamInstanceProfile": { "Ref": "JumpboxInstanceProfile" },
+                "InstanceType" : "t2.micro",
+                "KeyName" : { "Ref" : "KeyPairName" },
+                "SourceDestCheck" : "false",
+                "ImageId" : { "Fn::FindInMap" : [ "NatRegionMap", { "Ref" : "AWS::Region" }, "AMI" ]},
+                "NetworkInterfaces" : [{
+                "GroupSet" : [{ "Ref" : "NatSecurityGroup" }],
+                "AssociatePublicIpAddress" : "true",
+                "DeviceIndex" : 0,
+                "DeleteOnTermination" : "true",
+                "SubnetId" : { "Ref" : "PublicSubnet" }
+                }],
+                "Tags" : [
+                { "Key" : "Name", "Value" : "NAT" }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "#!/bin/bash\n",
+                          "yum update -y \n",
+                          "yum install -y yum-cron\n",
+                          "chkconfig yum-cron on\n",
+                          "\n"
+                        ]
+                      ]
+                    }
+                }
+            }              
+            },
+            "PrivateSubnet": {
+                "Type": "AWS::EC2::Subnet",
+                "Properties": {
+                    "VpcId": {
+                        "Ref": "VPC"
+                    },
+                    "AvailabilityZone": {
+                        "Fn::Select": [
+                            0,
+                            {
+                                "Fn::GetAZs": ""
+                            }
+                        ]
+                    },
+                    "CidrBlock": {
+                        "Ref": "PrivateSubnetCIDR"
+                    },
+                    "MapPublicIpOnLaunch": false,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": {
+                                "Fn::Sub": "${ProductName}.${EnvironmentName}.Private-Subnet(AZ1)"
+                            }
+                        },
+                        {
+                            "Key": "ProductName",
+                            "Value": {
+                                "Ref": "ProductName"
+                            }
+                        },
+                        {
+                            "Key": "Environment",
+                            "Value": {
+                                "Ref": "EnvironmentName"
+                            }
+                        }
+                    ]
+                }
+            },
+            "PrivateRouteTable": {
+                "Type": "AWS::EC2::RouteTable",
+                "Properties": {
+                    "VpcId": {
+                        "Ref": "VPC"
+                    },
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": {
+                                "Fn::Sub": "${ProductName}.${EnvironmentName}.Private-Routes(AZ1)"
+                            }
+                        },
+                        {
+                            "Key": "ProductName",
+                            "Value": {
+                                "Ref": "ProductName"
+                            }
+                        },
+                        {
+                            "Key": "Environment",
+                            "Value": {
+                                "Ref": "EnvironmentName"
+                            }
+                        }
+                    ]
+                }
+            },
+            "DefaultPrivateRoute": {
+                "Type": "AWS::EC2::Route",
+                "Properties": {
+                    "RouteTableId": {
+                        "Ref": "PrivateRouteTable"
+                    },
+                    "DestinationCidrBlock": "0.0.0.0/0",
+                    "InstanceId" : { "Ref" : "NAT" }
+                }
+            },
+            "PrivateSubnetRouteTableAssociation": {
+                "Type": "AWS::EC2::SubnetRouteTableAssociation",
+                "Properties": {
+                    "RouteTableId": {
+                        "Ref": "PrivateRouteTable"
+                    },
+                    "SubnetId": {
+                        "Ref": "PrivateSubnet"
+                    }
+                }
+            },
+            "PublicNetworkAcl": {
+                "Type": "AWS::EC2::NetworkAcl",
+                "Properties": {
+                    "VpcId": {
+                        "Ref": "VPC"
+                    },
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": {
+                                "Fn::Sub": "${ProductName}.${EnvironmentName}.Public-Network-ACL"
+                            }
+                        },
+                        {
+                            "Key": "ProductName",
+                            "Value": {
+                                "Ref": "ProductName"
+                            }
+                        },
+                        {
+                            "Key": "Environment",
+                            "Value": {
+                                "Ref": "EnvironmentName"
+                            }
+                        },
+                        {
+                            "Key": "Environment",
+                            "Value": "Public"
+                        }
+                    ]
+                }
+            },
+            "PrivateNetworkAcl": {
+                "Type": "AWS::EC2::NetworkAcl",
+                "Properties": {
+                    "VpcId": {
+                        "Ref": "VPC"
+                    },
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": {
+                                "Fn::Sub": "${ProductName}.${EnvironmentName}.Private-Network-ACL"
+                            }
+                        },
+                        {
+                            "Key": "ProductName",
+                            "Value": {
+                                "Ref": "ProductName"
+                            }
+                        },
+                        {
+                            "Key": "Environment",
+                            "Value": {
+                                "Ref": "EnvironmentName"
+                            }
+                        },
+                        {
+                            "Key": "Environment",
+                            "Value": "Private"
+                        }
+                    ]
+                }
+            },
+            "InboundEphemeralPublicNetworkAclEntryTCP": {
+                "Type": "AWS::EC2::NetworkAclEntry",
+                "Properties": {
+                    "NetworkAclId": {
+                        "Ref": "PublicNetworkAcl"
+                    },
+                    "RuleNumber": "100",
+                    "Protocol": "6",
+                    "RuleAction": "allow",
+                    "Egress": "false",
+                    "CidrBlock": "0.0.0.0/0",
+                    "PortRange": {
+                        "From": "1024",
+                        "To": "65535"
+                    }
+                }
+            },
+            "InboundEphemeralPublicNetworkAclEntryUDP": {
+                "Type": "AWS::EC2::NetworkAclEntry",
+                "Properties": {
+                    "NetworkAclId": {
+                        "Ref": "PublicNetworkAcl"
+                    },
+                    "RuleNumber": "1000",
+                    "Protocol": "17",
+                    "RuleAction": "allow",
+                    "Egress": "false",
+                    "CidrBlock": "0.0.0.0/0",
+                    "PortRange": {
+                        "From": "1024",
+                        "To": "65535"
+                    }
+                }
+            },
+            "InboundSSHPublicNetworkAclEntry": {
+                "Type": "AWS::EC2::NetworkAclEntry",
+                "Properties": {
+                    "NetworkAclId": {
+                        "Ref": "PublicNetworkAcl"
+                    },
+                    "RuleNumber": "2000",
+                    "Protocol": "6",
+                    "RuleAction": "allow",
+                    "Egress": "false",
+                    "CidrBlock": "0.0.0.0/0",
+                    "PortRange": {
+                        "From": "22",
+                        "To": "22"
+                    }
+                }
+            },
+            "InboundNTPPublicNetworkAclEntry": {
+                "Type": "AWS::EC2::NetworkAclEntry",
+                "Properties": {
+                    "NetworkAclId": {
+                        "Ref": "PublicNetworkAcl"
+                    },
+                    "RuleNumber": "3000",
+                    "Protocol": "17",
+                    "RuleAction": "allow",
+                    "Egress": "false",
+                    "CidrBlock": "0.0.0.0/0",
+                    "PortRange": {
+                        "From": "123",
+                        "To": "123"
+                    }
+                }
+            },
+            "InboundHTTPPublicNetworkAclEntry": {
+                "Type": "AWS::EC2::NetworkAclEntry",
+                "Properties": {
+                    "NetworkAclId": {
+                        "Ref": "PublicNetworkAcl"
+                    },
+                    "RuleNumber": "3100",
+                    "Protocol": "6",
+                    "RuleAction": "allow",
+                    "Egress": "false",
+                    "CidrBlock": "0.0.0.0/0",
+                    "PortRange": {
+                        "From": "80",
+                        "To": "80"
+                    }
+                }
+            },
+            "Inbound8080PublicNetworkAclEntry": {
+                "Type": "AWS::EC2::NetworkAclEntry",
+                "Properties": {
+                    "NetworkAclId": {
+                        "Ref": "PublicNetworkAcl"
+                    },
+                    "RuleNumber": "3200",
+                    "Protocol": "6",
+                    "RuleAction": "allow",
+                    "Egress": "false",
+                    "CidrBlock": "0.0.0.0/0",
+                    "PortRange": {
+                        "From": "8080",
+                        "To": "8080"
+                    }
+                }
+            },
+            "InboundHTTPSPublicNetworkAclEntry": {
+                "Type": "AWS::EC2::NetworkAclEntry",
+                "Properties": {
+                    "NetworkAclId": {
+                        "Ref": "PublicNetworkAcl"
+                    },
+                    "RuleNumber": "3300",
+                    "Protocol": "6",
+                    "RuleAction": "allow",
+                    "Egress": "false",
+                    "CidrBlock": "0.0.0.0/0",
+                    "PortRange": {
+                        "From": "443",
+                        "To": "443"
+                    }
+                }
+            },
+            "OutboundPublicNetworkAclEntryTCP": {
+                "Type": "AWS::EC2::NetworkAclEntry",
+                "Properties": {
+                    "NetworkAclId": {
+                        "Ref": "PublicNetworkAcl"
+                    },
+                    "RuleNumber": "100",
+                    "Protocol": "6",
+                    "RuleAction": "allow",
+                    "Egress": "true",
+                    "CidrBlock": "0.0.0.0/0",
+                    "PortRange": {
+                        "From": "0",
+                        "To": "65535"
+                    }
+                }
+            },
+            "OutboundPublicNetworkAclEntryUDP": {
+                "Type": "AWS::EC2::NetworkAclEntry",
+                "Properties": {
+                    "NetworkAclId": {
+                        "Ref": "PublicNetworkAcl"
+                    },
+                    "RuleNumber": "200",
+                    "Protocol": "17",
+                    "RuleAction": "allow",
+                    "Egress": "true",
+                    "CidrBlock": "0.0.0.0/0",
+                    "PortRange": {
+                        "From": "0",
+                        "To": "65535"
+                    }
+                }
+            },
+            "NetworkAclEntryPrivate": {
+                "Type": "AWS::EC2::NetworkAclEntry",
+                "Properties": {
+                    "CidrBlock": "0.0.0.0/0",
+                    "Egress": "true",
+                    "Protocol": "-1",
+                    "RuleAction": "allow",
+                    "RuleNumber": "100",
+                    "NetworkAclId": {
+                        "Ref": "PrivateNetworkAcl"
+                    }
+                }
+            },
+            "PrivateSubnetNetworkAclAssociation": {
+                "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+                "Properties": {
+                    "SubnetId": {
+                        "Ref": "PrivateSubnet"
+                    },
+                    "NetworkAclId": {
+                        "Ref": "PrivateNetworkAcl"
+                    }
+                }
+            },
+            "PublicSubnetNetworkAclAssociation": {
+                "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+                "Properties": {
+                    "SubnetId": {
+                        "Ref": "PublicSubnet"
+                    },
+                    "NetworkAclId": {
+                        "Ref": "PublicNetworkAcl"
+                    }
+                }
+            },
+            "MyFlowLog" : {
+                  "Type" : "AWS::EC2::FlowLog",
+                  "Properties" : {
+                    "DeliverLogsPermissionArn" : { "Fn::Join" : [ "", ["arn:aws:iam::", {"Ref": "AWS::AccountId"}, ":role/global-efcm-access-role"]]},
+                    "LogGroupName" : {"Fn::Sub": "${ProductName}-${EnvironmentName}-VPC"},
+                    "ResourceId" : { "Ref" : "VPC" },
+                    "ResourceType" : "VPC",
+                    "TrafficType" : "ALL"
+                  }
+            }           
+        },
+    "Outputs": {
+            "VPC": {
+                "Description": "A reference to the created VPC",
+                "Value": {
+                    "Ref": "VPC"
+                }
+            },
+            "PublicSubnets": {
+                "Description": "A list of the public subnets",
+                "Value": {
+                    "Fn::Join": [
+                        ",",
+                        [
+                            {
+                                "Ref": "PublicSubnet"
+                            }
+                        ]
+                    ]
+                }
+            },
+            "PrivateSubnets": {
+                "Description": "A list of the private subnets",
+                "Value": {
+                    "Fn::Join": [
+                        ",",
+                        [
+                            {
+                                "Ref": "PrivateSubnet"
+                            }
+                        ]
+                    ]
+                }
+            },
+            "PublicSubnet": {
+                "Description": "A reference to the public subnet in the 1st Availability Zone",
+                "Value": {
+                    "Ref": "PublicSubnet"
+                }
+            },
+            "PrivateSubnet": {
+                "Description": "A reference to the private subnet in the 1st Availability Zone",
+                "Value": {
+                    "Ref": "PrivateSubnet"
+                }
+            },
+            "NATIP" : {
+                "Description" : "NAT IP address",
+                "Value" : { "Fn::GetAtt" : [ "NAT", "PublicIp" ] }
+            },
+            "ProductName": {
+                "Description": "Out ProductName for all other stack",
+                "Value": {
+                    "Ref": "ProductName"
+                }
+            },
+            "EnvironmentName": {
+                "Description": "Out EnvironmentName for all other stack",
+                "Value": {
+                    "Ref": "EnvironmentName"
+                }
+            }
+    }
+}

@@ -1,0 +1,8 @@
+template_path: templates/backbone.json
+
+parameters:
+  ProductName: appcluster
+  EnvironmentName: dev
+  VpcCIDR: 10.0.0.0/16
+  PublicSubnetCIDR: 10.0.10.0/24
+  PrivateSubnetCIDR: 10.0.11.0/24
