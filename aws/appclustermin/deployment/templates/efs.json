@@ -15,7 +15,11 @@
       "Description": "Choose which VPC this ECS cluster should be deployed to",
       "Type": "AWS::EC2::VPC::Id"
     },
-    "PrivateSubnet": {
+    "PrivateSubnet1": {
+      "Description": "The name of the EFS volume",
+      "Type": "AWS::EC2::Subnet::Id"
+    },
+    "PrivateSubnet2": {
       "Description": "The name of the EFS volume",
       "Type": "AWS::EC2::Subnet::Id"
     }
@@ -63,14 +67,30 @@
         ]
       }
     },
-    "MountTarget": {
+    "MountTargetA": {
       "Type": "AWS::EFS::MountTarget",
       "Properties": {
         "FileSystemId": {
           "Ref": "FileSystem"
         },
         "SubnetId": {
-          "Ref": "PrivateSubnet"
+          "Ref": "PrivateSubnet1"
+        },
+        "SecurityGroups": [
+          {
+            "Ref": "EfsSecurityGroup"
+          }
+        ]
+      }
+    },
+    "MountTargetB": {
+      "Type": "AWS::EFS::MountTarget",
+      "Properties": {
+        "FileSystemId": {
+          "Ref": "FileSystem"
+        },
+        "SubnetId": {
+          "Ref": "PrivateSubnet2"
         },
         "SecurityGroups": [
           {
