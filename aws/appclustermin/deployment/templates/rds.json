@@ -1,0 +1,250 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "AWS CloudFormation Template for Aurora Postgresql: This create a aurora posthresql basic database ",
+    "Parameters": {
+        "ProductName": {
+            "Description": "The Product Name, that we tag with every resource , so that we can track resources for products",
+            "Type": "String"
+        },
+        "EnvironmentName": {
+            "Description": "An environment name that will be prefixed to resource names, also every resource we tag with env",
+            "Type": "String"
+        },
+        "VPC": {
+            "Type": "AWS::EC2::VPC::Id",
+            "Description": "Choose which VPC the security groups should be deployed to"
+        },
+        "PrivateSubnets": {
+            "Description": "Choose which private subnets this ECS cluster should be deployed to",
+            "Type": "List<AWS::EC2::Subnet::Id>"
+        },
+        "DBName": {
+            "Default": "journal",
+            "Description": "The database name",
+            "Type": "String",
+            "MinLength": "1",
+            "MaxLength": "64",
+            "AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+            "ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
+        },
+        "DBUser": {
+            "NoEcho": "true",
+            "Description": "The database admin account username",
+            "Type": "String",
+            "MinLength": "1",
+            "MaxLength": "16",
+            "AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+            "ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
+        },
+        "DBPassword": {
+            "NoEcho": "true",
+            "Description": "The database admin account password",
+            "Type": "String",
+            "MinLength": "1",
+            "MaxLength": "41",
+            "AllowedPattern": "[a-zA-Z0-9]+",
+            "ConstraintDescription": "must contain only alphanumeric characters."
+        },
+        "DBAllocatedStorage": {
+            "Default": "5",
+            "Description": "The size of the database (Gb)",
+            "Type": "Number",
+            "MinValue": "5",
+            "MaxValue": "1024",
+            "ConstraintDescription": "must be between 5 and 1024Gb."
+        },
+        "DBInstanceClass": {
+            "Description": "The database instance type",
+            "Type": "String",
+            "Default": "db.m1.medium",
+            "AllowedValues": [
+                "db.t1.micro",
+                "db.m1.small",
+                "db.m1.medium",
+                "db.m1.large",
+                "db.m1.xlarge",
+                "db.m2.xlarge",
+                "db.m2.2xlarge",
+                "db.m2.4xlarge",
+                "db.m3.medium",
+                "db.m3.large",
+                "db.m3.xlarge",
+                "db.m3.2xlarge",
+                "db.m4.large",
+                "db.m4.xlarge",
+                "db.m4.2xlarge",
+                "db.m4.4xlarge",
+                "db.m4.10xlarge",
+                "db.r3.large",
+                "db.r3.xlarge",
+                "db.r3.2xlarge",
+                "db.r3.4xlarge",
+                "db.r3.8xlarge",
+                "db.m2.xlarge",
+                "db.m2.2xlarge",
+                "db.m2.4xlarge",
+                "db.cr1.8xlarge",
+                "db.t2.micro",
+                "db.t2.small",
+                "db.t2.medium",
+                "db.t2.large",
+                "db.r4.large"
+            ],
+            "ConstraintDescription": "must select a valid database instance type."
+        },
+        "EcsHostSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup::Id",
+            "Description": "The security group that grants access to RDS"
+        },
+        "JumpboxSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup::Id",
+            "Description": "The security group that grants access to ssh"
+        },
+        "MultiAZ": {
+            "Description": "Multi-AZ master database",
+            "Type": "String",
+            "Default": "false",
+            "AllowedValues": [
+                "true",
+                "false"
+            ],
+            "ConstraintDescription": "must be true or false."
+        },
+        "SnapshotId": {
+            "NoEcho": "true",
+            "Description": "The database snapshot",
+            "Type": "String",
+            "Default": "rds:appcluster-dev-rds-rdscluster-1wfjajrka0g96-2018-11-22-03-11"
+        }
+
+    },
+    "Resources": {
+        "DBSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Open database for access",
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "SecurityGroupIngress": [{
+                    "IpProtocol": "tcp",
+                    "FromPort": "5432",
+                    "ToPort": "5432",
+                    "SourceSecurityGroupId": {
+                        "Ref": "JumpboxSecurityGroup"
+                    }
+                },
+                {
+                    "IpProtocol": "tcp",
+                    "FromPort": "5432",
+                    "ToPort": "5432",
+                    "SourceSecurityGroupId": {
+                        "Ref": "EcsHostSecurityGroup"
+                    }
+                }]
+            }
+        },
+        "DBSubnetGroup": {
+            "Type": "AWS::RDS::DBSubnetGroup",
+            "Properties": {
+                "DBSubnetGroupDescription": "DBSubnetGroup",
+                "SubnetIds": {
+                    "Ref": "PrivateSubnets"
+                }
+            }
+        },
+        "RDSCluster" : {
+            "Type" : "AWS::RDS::DBCluster",
+            "Properties" : {
+              "Engine" : "aurora-postgresql",
+              "DBSubnetGroupName" : { "Ref" : "DBSubnetGroup" },
+              "DBClusterParameterGroupName" : { "Ref" : "RDSDBClusterParameterGroup" },
+              "Port": 5432,
+              "VpcSecurityGroupIds":[{ "Ref" : "DBSecurityGroup" }],
+              "SnapshotIdentifier" : { "Ref" : "SnapshotId" }
+            }
+          },
+          "RDSDBInstance1" : {
+            "Type" : "AWS::RDS::DBInstance",
+            "Properties" : {
+              "DBSubnetGroupName" : {
+                "Ref" : "DBSubnetGroup"
+              },
+              "Engine" : "aurora-postgresql",
+              "DBParameterGroupName" :{"Ref": "RDSDBParameterGroup"},
+              "DBClusterIdentifier" : {
+                "Ref" : "RDSCluster"
+              },
+              "PubliclyAccessible" : "true",
+              "DBInstanceClass" : "db.r4.large"
+            }
+          },
+          "RDSDBClusterParameterGroup" : {
+            "Type": "AWS::RDS::DBClusterParameterGroup",
+            "Properties" : {
+              "Description" : "CloudFormation Sample Aurora Cluster Parameter Group",
+              "Family" : "aurora-postgresql9.6",
+              "Parameters" : {
+                "timezone" : "US/Eastern"
+              }
+            }
+          },
+          "RDSDBParameterGroup": {
+            "Type": "AWS::RDS::DBParameterGroup",
+            "Properties" : {
+              "Description" : "CloudFormation Sample Aurora Parameter Group",
+              "Family" : "aurora-postgresql9.6",
+              "Parameters" : {
+                "pgaudit.log": "ddl"
+              }
+            }
+          }
+    },
+    "Outputs": {
+        "ClusterId": {
+            "Description": "ClusterId of Aurora Cluster",
+            "Value": { "Ref" : "RDSCluster" }
+        },
+        "DbUrl": {
+            "Description": "ClusterId of Aurora Cluster",
+            "Value": {
+                "Fn::GetAtt": [
+                    "RDSCluster",
+                    "Endpoint.Address"
+                ]
+            }
+        },
+        "ReadDbUrl": {
+            "Description": "ClusterId of Aurora Cluster",
+            "Value": {
+                "Fn::GetAtt": [
+                    "RDSCluster",
+                    "ReadEndpoint.Address"
+                ]
+            }
+        },
+        "JDBCConnectionStringPrefix": {
+            "Description": "JDBC connection string for the master database",
+            "Value": {
+                "Fn::Join": [
+                    "", [
+                        "jdbc:postgresql://",
+                        {
+                            "Fn::GetAtt": [
+                                "RDSCluster",
+                                "Endpoint.Address"
+                            ]
+                        },
+                        ":",
+                        {
+                            "Fn::GetAtt": [
+                                "RDSCluster",
+                                "Endpoint.Port"
+                            ]
+                        }
+                    ]
+                ]
+            }
+        }
+    }
+}
