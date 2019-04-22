@@ -883,6 +883,14 @@
                     }
                 ]
             }
+        },
+        "CloudWatchLogsGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+                "LogGroupName": {
+                    "Ref": "AWS::StackName"
+                }
+            }
         }
     },
     "Outputs": {
