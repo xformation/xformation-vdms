@@ -889,7 +889,8 @@
             "Properties": {
                 "LogGroupName": {
                     "Ref": "AWS::StackName"
-                }
+                },
+                "RetentionInDays": 365
             }
         }
     },
