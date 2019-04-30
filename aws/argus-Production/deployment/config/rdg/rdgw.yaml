@@ -16,4 +16,8 @@ parameters:
   DomainMemberSGID: sg-02caa2a98295da16d
   PublicSubnet2ID: subnet-0c9a3e1ffa14ccd2d
   QSS3BucketName: ocregistryoc
+  DomainDNSName: scloud.com
+  DomainNetBIOSName: SCLOUD
+  DomainAdminUser: salam
+  DomainAdminPassword: Nhy6Mju7
   #QSS3KeyPrefix: quickstart-microsoft-utilities
