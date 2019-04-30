@@ -60,7 +60,7 @@
                     "default": "Domain Admin Password"
                 },
                 "DomainAdminUser": {
-                    "default": "Domain Admin User Name"
+                    "default": "salam"
                 },
                 "DomainDNSName": {
                     "default": "Domain DNS Name"

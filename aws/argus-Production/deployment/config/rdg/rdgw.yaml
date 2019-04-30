@@ -15,3 +15,5 @@ parameters:
   PublicSubnet1ID: subnet-0e7ddd689d30aedca
   DomainMemberSGID: sg-02caa2a98295da16d
   PublicSubnet2ID: subnet-0c9a3e1ffa14ccd2d
+  QSS3BucketName: ocregistryoc
+  #QSS3KeyPrefix: quickstart-microsoft-utilities
