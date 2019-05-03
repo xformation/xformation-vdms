@@ -60,7 +60,7 @@
                     "default": "Domain Admin Password"
                 },
                 "DomainAdminUser": {
-                    "default": "Domain Admin User Name"
+                    "default": "salam"
                 },
                 "DomainDNSName": {
                     "default": "Domain DNS Name"
@@ -538,23 +538,88 @@
                                 }
                             },
                             "C:\\cfn\\scripts\\Unzip-Archive.ps1": {
-                                "source": "https://s3.amazonaws.com/ocregistryoc/submodules/quickstart-microsoft-utilities/scripts/Unzip-Archive.ps1",
+                                "source": {
+                                    "Fn::Sub": [
+                                        "https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Unzip-Archive.ps1",
+                                        {
+                                            "QSS3Region": {
+                                                "Fn::If": [
+                                                    "GovCloudCondition",
+                                                    "s3-us-gov-west-1",
+                                                    "s3"
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                },
                                 "authentication": "S3AccessCreds"
                             },
                             "C:\\cfn\\modules\\AWSQuickStart.zip": {
-                                "source": "https://s3.amazonaws.com/ocregistryoc/submodules/quickstart-microsoft-utilities/modules/AWSQuickStart.zip",
+                                "source": {
+                                    "Fn::Sub": [
+                                        "https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/modules/AWSQuickStart.zip",
+                                        {
+                                            "QSS3Region": {
+                                                "Fn::If": [
+                                                    "GovCloudCondition",
+                                                    "s3-us-gov-west-1",
+                                                    "s3"
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                },
                                 "authentication": "S3AccessCreds"
                             },
                             "C:\\cfn\\scripts\\Join-Domain.ps1": {
-                                "source": "https://s3.amazonaws.com/ocregistryoc/submodules/quickstart-microsoft-utilities/scripts/Join-Domain.ps1",
+                                "source": {
+                                    "Fn::Sub": [
+                                        "https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Join-Domain.ps1",
+                                        {
+                                            "QSS3Region": {
+                                                "Fn::If": [
+                                                    "GovCloudCondition",
+                                                    "s3-us-gov-west-1",
+                                                    "s3"
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                },
                                 "authentication": "S3AccessCreds"
                             },
                             "c:\\cfn\\scripts\\Initialize-RDGW.ps1": {
-                                "source": "https://s3.amazonaws.com/ocregistryoc/scripts/Initialize-RDGW.ps1",
+                                "source": {
+                                    "Fn::Sub": [
+                                        "https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Initialize-RDGW.ps1",
+                                        {
+                                            "QSS3Region": {
+                                                "Fn::If": [
+                                                    "GovCloudCondition",
+                                                    "s3-us-gov-west-1",
+                                                    "s3"
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                },
                                 "authentication": "S3AccessCreds"
                             },
                             "c:\\cfn\\scripts\\Set-EIP.ps1": {
-                                "source": "https://s3.amazonaws.com/ocregistryoc/scripts/Set-EIP.ps1",                               
+                                "source": {
+                                    "Fn::Sub": [
+                                        "https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Set-EIP.ps1",
+                                        {
+                                            "QSS3Region": {
+                                                "Fn::If": [
+                                                    "GovCloudCondition",
+                                                    "s3-us-gov-west-1",
+                                                    "s3"
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                },
                                 "authentication": "S3AccessCreds"
                             }
                         },
@@ -571,12 +636,12 @@
                             }
                         },
                         "commands": {
-                            "set-dnsservers": {
-                                "command": "powershell.exe -Command \"Get-NetAdapter | Set-DnsClientServerAddress -ServerAddresses 100.64.3.21,8.8.8.8\"",
-                                "waitAfterCompletion": "0"
-                            },
                             "a-set-execution-policy": {
                                 "command": "powershell.exe -Command \"Set-ExecutionPolicy RemoteSigned -Force\"",
+                                "waitAfterCompletion": "0"
+                            },
+                            "t-test-policy": {
+                                "command": "powershell.exe -Command \"Set-DNSClientServerAddress -InterfaceAlias Ethernet –ResetServerAddresses\"",
                                 "waitAfterCompletion": "0"
                             },
                             "b-unpack-quickstart-module": {
