@@ -1,0 +1,70 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "This template will create Customer Gateway,Private Gateway and site-to-site VPN Connection",
+    "Parameters": {
+      "EnvironmentName" : {
+        "Description" : "Name of the EnvironmentName",
+        "Type" : "String",
+        "Default" : "devjenkins"
+      },
+      "VpcId" : {
+        "Description" : "Name of the VPC to attach to private gateway",
+        "Type" : "String"
+      },
+      "IpAddress": {
+        "Description": "Pbulic Static IP Address for VPN Creation",
+        "Type": "String",
+        "AllowedPattern": "^([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])",
+        "ConstraintDescription": "Must be a valid CIDR range in the form x.x.x.x/x"
+      }
+    },
+  
+    "Mappings" : {
+    },
+  
+    "Resources": {
+      "VirtualCGW":{
+        "Type" : "AWS::EC2::CustomerGateway",
+        "Properties" : {
+           "Type" : "ipsec.1",
+           "BgpAsn" : "65000",
+           "IpAddress" : { "Ref": "IpAddress" }
+        }
+      },
+      "ProdVPGW" : {
+        "Type" : "AWS::EC2::VPNGateway",
+        "Properties" : {
+           "Type" : "ipsec.1",
+           "Tags" : [ { "Key" : "Name", "Value" : "Prod_VPGW" } ]
+        }
+      },
+      "AttachProdVPGW" : {
+            "Type" : "AWS::EC2::VPCGatewayAttachment",
+            "Properties" : {
+               "VpcId" : { "Ref" : "VpcId" },
+               "VpnGatewayId" : { "Ref" : "ProdVPGW" }
+            }
+      },
+      "myVPNConnection" : {
+        "Type" : "AWS::EC2::VPNConnection",
+        "Properties" : {
+           "Type" : "ipsec.1",
+           "StaticRoutesOnly" : "true",
+           "CustomerGatewayId" : {"Ref" : "VirtualCGW"},
+           "VpnGatewayId" : {"Ref" : "ProdVPGW"},
+           "Tags" : [ { "Key" : "Name", "Value" : "Prod_VPN" } ]
+        }
+      }
+    },
+    "Outputs" : {
+        "VirtualCGW":{
+            "Description": "VirtualCGW reference",
+            "Value": { "Ref": "VirtualCGW" }
+        },
+        "ProdVPGW": {
+            "Description": "ProdVPGW reference",
+            "Value": { "Ref": "ProdVPGW" }
+        }
+    }
+    
+}

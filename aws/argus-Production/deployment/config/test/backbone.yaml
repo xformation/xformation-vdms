@@ -1,7 +1,7 @@
 template_path: templates/backbone.json
 
 parameters:
-  ProductName: appclustermin
+  ProductName: argusprodcluster
   EnvironmentName: dev
   VpcCIDR: 172.16.0.0/16
   PublicSubnet1CIDR: 172.16.0.0/24
