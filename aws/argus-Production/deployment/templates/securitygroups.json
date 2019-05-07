@@ -61,6 +61,42 @@
         }
       }
     },
+    "DomainMemberSGID": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupName" : "DomainMember",
+        "GroupDescription" : "DomainMember security group",
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": {
+              "Ref": "WhitelistIP"
+            },
+            "FromPort": 22,
+            "ToPort": 22,
+            "IpProtocol": "-1"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "Domain-Member"
+                ]
+              ]
+            }
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
     "SshAccessSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
@@ -148,8 +184,6 @@
       "Properties": {
         "GroupName" : "ECS",
         "GroupDescription" : "ECS security group",
-        "GroupName" : "ECS",
-        "GroupDescription" : "ECS security group",
         "VpcId": {
           "Ref": "VPC"
         },
@@ -202,6 +236,12 @@
       "Description": "The ID of the JenkinsClusterSecurityGroup",
       "Value": {
         "Ref": "JumpboxSecurityGroup"
+      }
+    },
+    "DomainMemberSGID": {
+      "Description": "The ID of the Domain SecurityGroup",
+      "Value": {
+        "Ref": "DomainMemberSGID"
       }
     },
     "LoadBalancerSecurityGroup": {
