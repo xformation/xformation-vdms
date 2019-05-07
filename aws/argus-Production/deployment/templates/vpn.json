@@ -5,7 +5,7 @@
       "EnvironmentName" : {
         "Description" : "Name of the EnvironmentName",
         "Type" : "String",
-        "Default" : "devjenkins"
+        "Default" : "Prod_VPNSetup"
       },
       "VpcId" : {
         "Description" : "Name of the VPC to attach to private gateway",

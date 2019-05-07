@@ -9,9 +9,10 @@
                         "default": "Network Configuration"
                     },
                     "Parameters": [
-                        "VPCID",
+                        "VpcId",
                         "PublicSubnet1ID",
                         "PublicSubnet2ID",
+                        "PublicSubnet3ID",
                         "RDGWCIDR"
                     ]
                 },
@@ -86,6 +87,9 @@
                 "PublicSubnet2ID": {
                     "default": "Public Subnet 2 ID"
                 },
+                "PublicSubnet3ID": {
+                    "default": "Public Subnet 3 ID"
+                },
                 "QSS3BucketName": {
                     "default": "Quick Start S3 Bucket Name"
                 },
@@ -98,7 +102,7 @@
                 "RDGWCIDR": {
                     "default": "Allowed Remote Desktop Gateway External Access CIDR"
                 },
-                "VPCID": {
+                "VpcId": {
                     "default": "VPC ID"
                 }
             }
@@ -168,6 +172,10 @@
             "Description": "ID of the public subnet 2 you want to provision the second Remote Desktop Gateway into (e.g., subnet-e3246d8e)",
             "Type": "AWS::EC2::Subnet::Id"
         },
+        "PublicSubnet3ID": {
+            "Description": "ID of the public subnet 3 you want to provision the second Remote Desktop Gateway into (e.g., subnet-e3246d8e)",
+            "Type": "AWS::EC2::Subnet::Id"
+        },
         "QSS3BucketName": {
             "AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
             "ConstraintDescription": "Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
@@ -187,6 +195,7 @@
             "Type": "String",
             "Default": "t2.large",
             "AllowedValues": [
+                "t2.medium",
                 "t2.large",
                 "m3.large",
                 "m3.xlarge",
@@ -206,7 +215,7 @@
             "Description": "Allowed CIDR Block for external access to the Remote Desktop Gateways",
             "Type": "String"
         },
-        "VPCID": {
+        "VpcId": {
             "Description": "ID of the VPC (e.g., vpc-0343606e)",
             "Type": "AWS::EC2::VPC::Id"
         }
@@ -439,6 +448,9 @@
                     },
                     {
                         "Ref": "PublicSubnet2ID"
+                    },
+                    {
+                        "Ref": "PublicSubnet3ID"
                     }
                 ],
                 "MinSize": {
@@ -785,7 +797,7 @@
             "Properties": {
                 "GroupDescription": "Enable RDP access from the Internet",
                 "VpcId": {
-                    "Ref": "VPCID"
+                    "Ref": "VpcId"
                 },
                 "SecurityGroupIngress": [
                     {
