@@ -1,0 +1,48 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "This template will create workspaces for specified users",
+    "Parameters": {
+      "EnvironmentName" : {
+        "Description" : "Name of the EnvironmentName",
+        "Type" : "String",
+        "Default" : "Prod_Workspace_setup"
+      },
+      "BundleId" : {
+        "Description" : "ID of the Bundle to launch worksapce",
+        "Type" : "String"
+      },
+      "DirectoryID" : {
+        "Description" : "ID of the Directory",
+        "Type" : "String"
+      },
+      "UserName" : {
+        "Description" : "User Name to launch WorkSpace for",
+        "Type" : "String"
+      }
+    },
+  
+    "Mappings" : {
+    },
+  
+    "Resources": {
+      "Workspaces":{
+        "Type" : "AWS::WorkSpaces::Workspace",
+        "Properties" : {
+            "BundleId" : { "Ref": "BundleId" },
+            "DirectoryId" : { "Ref": "DirectoryID" },
+            "RootVolumeEncryptionEnabled" : "False",
+            "Tags" : [ { "Key" : "Name", "Value" : { "Ref": "UserName" } } ],
+            "UserName" : { "Ref": "UserName" },
+            "UserVolumeEncryptionEnabled" : "False"
+        }
+      }
+      
+    },
+    "Outputs" : {
+        "Workspaces": {
+            "Description": "Workspace for users",
+            "Value": { "Ref": "Workspaces" }
+        }
+    }
+    
+}
