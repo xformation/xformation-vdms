@@ -347,7 +347,7 @@
                 "Domain": "vpc"
             }
         },
-        "RDGWHostRole": {
+        "TerminalHostRole": {
             "Type": "AWS::IAM::Role",
             "Properties": {
                 "Policies": [
@@ -417,22 +417,22 @@
                 }
             }
         },
-        "RDGWHostProfile": {
+        "TerminalHostProfile": {
             "Type": "AWS::IAM::InstanceProfile",
             "Properties": {
                 "Roles": [
                     {
-                        "Ref": "RDGWHostRole"
+                        "Ref": "TerminalHostRole"
                     }
                 ],
                 "Path": "/"
             }
         },
-        "RDGWAutoScalingGroup": {
+        "TerminalAutoScalingGroup": {
             "Type": "AWS::AutoScaling::AutoScalingGroup",
             "Properties": {
                 "LaunchConfigurationName": {
-                    "Ref": "RDGWLaunchConfiguration"
+                    "Ref": "TerminalLaunchConfiguration"
                 },
                 "VPCZoneIdentifier": [
                     {
@@ -469,14 +469,14 @@
                 }
             }
         },
-        "RDGWLaunchConfiguration": {
+        "TerminalLaunchConfiguration": {
             "Type": "AWS::AutoScaling::LaunchConfiguration",
             "Metadata": {
                 "AWS::CloudFormation::Authentication": {
                     "S3AccessCreds": {
                         "type": "S3",
                         "roleName": {
-                            "Ref": "RDGWHostRole"
+                            "Ref": "TerminalHostRole"
                         },
                         "buckets": [
                             {
@@ -522,12 +522,12 @@
                                         [
                                             "[cfn-auto-reloader-hook]\n",
                                             "triggers=post.update\n",
-                                            "path=Resources.RDGWLaunchConfiguration.Metadata.AWS::CloudFormation::Init\n",
+                                            "path=Resources.TerminalLaunchConfiguration.Metadata.AWS::CloudFormation::Init\n",
                                             "action=cfn-init.exe -v -c config -s ",
                                             {
                                                 "Ref": "AWS::StackId"
                                             },
-                                            " -r RDGWLaunchConfiguration",
+                                            " -r TerminalLaunchConfiguration",
                                             " --region ",
                                             {
                                                 "Ref": "AWS::Region"
@@ -593,7 +593,7 @@
                                             {
                                                 "Ref": "AWS::StackName"
                                             },
-                                            "' -Resource 'RDGWAutoScalingGroup' -Region '",
+                                            "' -Resource 'TerminalAutoScalingGroup' -Region '",
                                             {
                                                 "Ref": "AWS::Region"
                                             },
@@ -740,7 +740,7 @@
                     }
                 ],
                 "IamInstanceProfile": {
-                    "Ref": "RDGWHostProfile"
+                    "Ref": "TerminalHostProfile"
                 },
                 "InstanceType": {
                     "Ref": "RDGWInstanceType"
@@ -767,7 +767,7 @@
                                 {
                                     "Ref": "AWS::StackId"
                                 },
-                                " -r RDGWLaunchConfiguration",
+                                " -r TerminalLaunchConfiguration",
                                 " --region ",
                                 {
                                     "Ref": "AWS::Region"

@@ -11,7 +11,13 @@
         "Description" : "Name of the VPC to attach to private gateway",
         "Type" : "String"
       },
-      "IpAddress": {
+      "IpAddressUS": {
+        "Description": "Pbulic Static IP Address for VPN Creation",
+        "Type": "String",
+        "AllowedPattern": "^([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])",
+        "ConstraintDescription": "Must be a valid CIDR range in the form x.x.x.x/x"
+      },
+      "IpAddressUK": {
         "Description": "Pbulic Static IP Address for VPN Creation",
         "Type": "String",
         "AllowedPattern": "^([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])",
@@ -23,12 +29,22 @@
     },
   
     "Resources": {
-      "VirtualCGW":{
+      "VirtualCGWUS":{
         "Type" : "AWS::EC2::CustomerGateway",
         "Properties" : {
            "Type" : "ipsec.1",
            "BgpAsn" : "65000",
-           "IpAddress" : { "Ref": "IpAddress" }
+           "IpAddress" : { "Ref": "IpAddressUS" },
+           "Tags" : [ { "Key" : "Name", "Value" : "Prod_USColoCGW" } ]
+        }
+      },
+      "VirtualCGWUK":{
+        "Type" : "AWS::EC2::CustomerGateway",
+        "Properties" : {
+           "Type" : "ipsec.1",
+           "BgpAsn" : "65000",
+           "IpAddress" : { "Ref": "IpAddressUK" },
+           "Tags" : [ { "Key" : "Name", "Value" : "Prod_UKColoCGW" } ]
         }
       },
       "ProdVPGW" : {
@@ -45,21 +61,35 @@
                "VpnGatewayId" : { "Ref" : "ProdVPGW" }
             }
       },
-      "myVPNConnection" : {
+      "myUSVPNConnection" : {
         "Type" : "AWS::EC2::VPNConnection",
         "Properties" : {
            "Type" : "ipsec.1",
            "StaticRoutesOnly" : "true",
-           "CustomerGatewayId" : {"Ref" : "VirtualCGW"},
+           "CustomerGatewayId" : {"Ref" : "VirtualCGWUS"},
            "VpnGatewayId" : {"Ref" : "ProdVPGW"},
-           "Tags" : [ { "Key" : "Name", "Value" : "Prod_VPN" } ]
+           "Tags" : [ { "Key" : "Name", "Value" : "Prod_USVPN" } ]
+        }
+      },
+      "myUKVPNConnection" : {
+        "Type" : "AWS::EC2::VPNConnection",
+        "Properties" : {
+           "Type" : "ipsec.1",
+           "StaticRoutesOnly" : "true",
+           "CustomerGatewayId" : {"Ref" : "VirtualCGWUK"},
+           "VpnGatewayId" : {"Ref" : "ProdVPGW"},
+           "Tags" : [ { "Key" : "Name", "Value" : "Prod_UKVPN" } ]
         }
       }
     },
     "Outputs" : {
-        "VirtualCGW":{
-            "Description": "VirtualCGW reference",
-            "Value": { "Ref": "VirtualCGW" }
+        "VirtualCGWUS":{
+            "Description": "VirtualCGWUS reference",
+            "Value": { "Ref": "VirtualCGWUS" }
+        },
+        "VirtualCGWUK":{
+          "Description": "VirtualCGWUK reference",
+          "Value": { "Ref": "VirtualCGWUK" }
         },
         "ProdVPGW": {
             "Description": "ProdVPGW reference",
