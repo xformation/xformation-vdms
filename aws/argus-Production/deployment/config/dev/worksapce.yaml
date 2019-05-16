@@ -1,0 +1,6 @@
+template_path: templates/workspace.json
+
+parameters:
+  BundleId: wsb-8vbljg4r6
+  DirectoryID: d-90671cca0d
+  UserName: salam
