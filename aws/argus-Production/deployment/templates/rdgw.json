@@ -118,7 +118,7 @@
             "Type": "String"
         },
         "DomainAdminUser": {
-            "AllowedPattern": "[a-zA-Z0-9]*",
+            "AllowedPattern": "[a-zA-Z0-9_]*",
             "Default": "StackAdmin",
             "Description": "User name for the Domain Administrator. This is separate from the default \"Administrator\" account",
             "MaxLength": "25",
@@ -193,7 +193,7 @@
         "RDGWInstanceType": {
             "Description": "Amazon EC2 instance type for the Remote Desktop Gateway instances",
             "Type": "String",
-            "Default": "t2.large",
+            "Default": "t2.medium",
             "AllowedValues": [
                 "t2.medium",
                 "t2.large",

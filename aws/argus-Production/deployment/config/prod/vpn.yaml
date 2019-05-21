@@ -1,8 +1,8 @@
-template_path: templates/vpn.json
-parameters:
-  EnvironmentName: !stack_output backbone::EnvironmentName
-  # ProductName: !stack_output backbone::ProductName
-  VpcId:  !stack_output backbone::VPC
-  # WhitelistIP: 0.0.0.0/0
-  IpAddressUS: 66.11.128.112
-  IpAddressUK: 82.163.113.42
+# template_path: templates/vpn.json
+# parameters:
+#   EnvironmentName: !stack_output backbone::EnvironmentName
+#   # ProductName: !stack_output backbone::ProductName
+#   VpcId:  !stack_output backbone::VPC
+#   # WhitelistIP: 0.0.0.0/0
+#   IpAddressUS: 66.11.128.112
+#   IpAddressUK: 82.163.113.42
