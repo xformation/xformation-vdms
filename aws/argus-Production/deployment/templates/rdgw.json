@@ -12,6 +12,7 @@
                         "VpcId",
                         "PublicSubnet1ID",
                         "PublicSubnet2ID",
+                        "PublicSubnet3ID",
                         "RDGWCIDR"
                     ]
                 },
@@ -85,6 +86,9 @@
                 },
                 "PublicSubnet2ID": {
                     "default": "Public Subnet 2 ID"
+                },
+                "PublicSubnet3ID": {
+                    "default": "Public Subnet 3 ID"
                 },
                 "QSS3BucketName": {
                     "default": "Quick Start S3 Bucket Name"
@@ -166,6 +170,10 @@
         },
         "PublicSubnet2ID": {
             "Description": "ID of the public subnet 2 you want to provision the second Remote Desktop Gateway into (e.g., subnet-e3246d8e)",
+            "Type": "AWS::EC2::Subnet::Id"
+        },
+        "PublicSubnet3ID": {
+            "Description": "ID of the public subnet 3 you want to provision the second Remote Desktop Gateway into (e.g., subnet-e3246d8e)",
             "Type": "AWS::EC2::Subnet::Id"
         },
         "QSS3BucketName": {
@@ -440,6 +448,9 @@
                     },
                     {
                         "Ref": "PublicSubnet2ID"
+                    },
+                    {
+                        "Ref": "PublicSubnet3ID"
                     }
                 ],
                 "MinSize": {
