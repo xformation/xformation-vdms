@@ -3,15 +3,12 @@ template_path: templates/rdgw.json
 parameters:
   KeyPairName: argus-key
   DomainAdminPassword: 8293Kwr64jR%
-  VpcId: !stack_output backbone::VPC
+  VpcId: vpc-0d4dd67070467ba70
   RDGWCIDR: 0.0.0.0/0
-  PublicSubnet1ID: !stack_output backbone::PublicSubnet1
-  DomainMemberSGID: !stack_output securitygroups::DomainMemberSGID
-  PublicSubnet2ID: !stack_output backbone::PublicSubnet2
-  PublicSubnet3ID: !stack_output backbone::PublicSubnet3
+  PublicSubnet1ID: subnet-0e7ddd689d30aedca
+  DomainMemberSGID: sg-02caa2a98295da16d
+  PublicSubnet2ID: subnet-0c9a3e1ffa14ccd2d
   QSS3BucketName: ocregistryoc
-  DomainDNSName: argusrg.com
-  DomainNetBIOSName: ARGUSRG
-  DomainAdminUser: aws_service
-  DomainAdminPassword: 8293Kwr64jR%
+  DomainDNSName: scloud.com
+  DomainNetBIOSName: SCLOUD
   #QSS3KeyPrefix: quickstart-microsoft-utilities
