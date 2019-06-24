@@ -151,6 +151,14 @@
               {
                 "Name": "DB_JDBC_URL",
                 "Value": { "Ref": "DBJdbcUrl"}
+              },
+              {
+                "Name": "localHome",
+                "Value": "/opt/confluence-home"
+              },
+              {
+                "Name": "confluenceHome",
+                "Value": "/opt/confluence-home"
               }
             ],
             "LogConfiguration": {
