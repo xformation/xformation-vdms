@@ -320,33 +320,6 @@
         }
     },
     "Resources": {
-        "EIP1": {
-            "Type": "AWS::EC2::EIP",
-            "Properties": {
-                "Domain": "vpc"
-            }
-        },
-        "EIP2": {
-            "Type": "AWS::EC2::EIP",
-            "Condition": "2TerminalCondition",
-            "Properties": {
-                "Domain": "vpc"
-            }
-        },
-        "EIP3": {
-            "Type": "AWS::EC2::EIP",
-            "Condition": "3TerminalCondition",
-            "Properties": {
-                "Domain": "vpc"
-            }
-        },
-        "EIP4": {
-            "Type": "AWS::EC2::EIP",
-            "Condition": "4TerminalCondition",
-            "Properties": {
-                "Domain": "vpc"
-            }
-        },
         "TerminalHostRole": {
             "Type": "AWS::IAM::Role",
             "Properties": {
@@ -552,10 +525,6 @@
                             "c:\\cfn\\scripts\\Initialize-RDGW.ps1": {
                                 "source": "https://s3.amazonaws.com/ocregistryoc/scripts/Initialize-RDGW.ps1",
                                 "authentication": "S3AccessCreds"
-                            },
-                            "c:\\cfn\\scripts\\Set-EIP.ps1": {
-                                "source": "https://s3.amazonaws.com/ocregistryoc/scripts/Set-EIP.ps1",                               
-                                "authentication": "S3AccessCreds"
                             }
                         },
                         "services": {
@@ -664,52 +633,6 @@
                                                 "Ref": "DomainNetBIOSName"
                                             },
                                             " -GroupName 'domain admins'"
-                                        ]
-                                    ]
-                                },
-                                "waitAfterCompletion": "0"
-                            },
-                            "c-assign-eip": {
-                                "command": {
-                                    "Fn::Join": [
-                                        "",
-                                        [
-                                            "powershell.exe -ExecutionPolicy RemoteSigned ",
-                                            "C:\\cfn\\scripts\\Set-EIP.ps1 -EIPs @('",
-                                            {
-                                                "Ref": "EIP1"
-                                            },
-                                            "','",
-                                            {
-                                                "Fn::If": [
-                                                    "2TerminalCondition",
-                                                    {
-                                                        "Ref": "EIP2"
-                                                    },
-                                                    "Null"
-                                                ]
-                                            },
-                                            "','",
-                                            {
-                                                "Fn::If": [
-                                                    "3TerminalCondition",
-                                                    {
-                                                        "Ref": "EIP3"
-                                                    },
-                                                    "Null"
-                                                ]
-                                            },
-                                            "','",
-                                            {
-                                                "Fn::If": [
-                                                    "4TerminalCondition",
-                                                    {
-                                                        "Ref": "EIP4"
-                                                    },
-                                                    "Null"
-                                                ]
-                                            },
-                                            "')"
                                         ]
                                     ]
                                 },
@@ -834,33 +757,6 @@
         }
     },
     "Outputs": {
-        "EIP1": {
-            "Description": "Elastic IP 1 for Terminal",
-            "Value": {
-                "Ref": "EIP1"
-            }
-        },
-        "EIP2": {
-            "Condition": "2TerminalCondition",
-            "Description": "Elastic IP 2 for Terminal",
-            "Value": {
-                "Ref": "EIP2"
-            }
-        },
-        "EIP3": {
-            "Condition": "3TerminalCondition",
-            "Description": "Elastic IP 3 for Terminal",
-            "Value": {
-                "Ref": "EIP3"
-            }
-        },
-        "EIP4": {
-            "Condition": "4TerminalCondition",
-            "Description": "Elastic IP 4 for Terminal",
-            "Value": {
-                "Ref": "EIP4"
-            }
-        },
         "TerminalServerSGID": {
             "Value": {
                 "Ref": "TerminalServerSG"
