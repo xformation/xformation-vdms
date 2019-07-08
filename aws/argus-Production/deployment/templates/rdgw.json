@@ -550,23 +550,23 @@
                                 }
                             },
                             "C:\\cfn\\scripts\\Unzip-Archive.ps1": {
-                                "source": "https://s3.amazonaws.com/ocregistryoc/submodules/quickstart-microsoft-utilities/scripts/Unzip-Archive.ps1",
+                                "source": "https://s3.eu-west-2.amazonaws.com/rdgwscripts/submodules/quickstart-microsoft-utilities/scripts/Unzip-Archive.ps1",
                                 "authentication": "S3AccessCreds"
                             },
                             "C:\\cfn\\modules\\AWSQuickStart.zip": {
-                                "source": "https://s3.amazonaws.com/ocregistryoc/submodules/quickstart-microsoft-utilities/modules/AWSQuickStart.zip",
+                                "source": "https://s3.eu-west-2.amazonaws.com/rdgwscripts/submodules/quickstart-microsoft-utilities/modules/AWSQuickStart.zip",
                                 "authentication": "S3AccessCreds"
                             },
                             "C:\\cfn\\scripts\\Join-Domain.ps1": {
-                                "source": "https://s3.amazonaws.com/ocregistryoc/submodules/quickstart-microsoft-utilities/scripts/Join-Domain.ps1",
+                                "source": "https://s3.eu-west-2.amazonaws.com/rdgwscripts/submodules/quickstart-microsoft-utilities/scripts/Join-Domain.ps1",
                                 "authentication": "S3AccessCreds"
                             },
                             "c:\\cfn\\scripts\\Initialize-RDGW.ps1": {
-                                "source": "https://s3.amazonaws.com/ocregistryoc/scripts/Initialize-RDGW.ps1",
+                                "source": "https://s3.eu-west-2.amazonaws.com/rdgwscripts/scripts/Initialize-RDGW.ps1",
                                 "authentication": "S3AccessCreds"
                             },
                             "c:\\cfn\\scripts\\Set-EIP.ps1": {
-                                "source": "https://s3.amazonaws.com/ocregistryoc/scripts/Set-EIP.ps1",                               
+                                "source": "https://s3.eu-west-2.amazonaws.com/rdgwscripts/scripts/Set-EIP.ps1",                               
                                 "authentication": "S3AccessCreds"
                             }
                         },
@@ -584,7 +584,7 @@
                         },
                         "commands": {
                             "set-dnsservers": {
-                                "command": "powershell.exe -Command \"Get-NetAdapter | Set-DnsClientServerAddress -ServerAddresses 100.64.3.21,8.8.8.8\"",
+                                "command": "powershell.exe -Command \"Get-NetAdapter | Set-DnsClientServerAddress -ServerAddresses 10.0.0.201,10.0.0.202\"",
                                 "waitAfterCompletion": "0"
                             },
                             "a-set-execution-policy": {
