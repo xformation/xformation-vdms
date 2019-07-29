@@ -1,6 +1,6 @@
 template_path: templates/workspace.json
 
 parameters:
-  BundleId: wsb-8vbljg4r6
-  DirectoryID: d-90671cca0d
-  UserName: salam
+  BundleId: wsb-d8sj16y8k # Bundle ID tsb-8vbljg4r6
+  DirectoryID: d-9c673ce0a0 # Directory ID
+  UserName: WQuintero # provide user name

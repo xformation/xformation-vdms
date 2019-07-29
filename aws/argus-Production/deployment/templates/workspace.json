@@ -30,10 +30,15 @@
         "Properties" : {
             "BundleId" : { "Ref": "BundleId" },
             "DirectoryId" : { "Ref": "DirectoryID" },
-            "RootVolumeEncryptionEnabled" : "False",
+            "RootVolumeEncryptionEnabled" : "True",
             "Tags" : [ { "Key" : "Name", "Value" : { "Ref": "UserName" } } ],
             "UserName" : { "Ref": "UserName" },
-            "UserVolumeEncryptionEnabled" : "False"
+            "UserVolumeEncryptionEnabled" : "True",
+            "VolumeEncryptionKey" : "alias/aws/workspaces",
+            "WorkspaceProperties" :{
+              "RunningMode" : "AUTO_STOP",
+              "RunningModeAutoStopTimeoutInMinutes" : 60
+            }
         }
       }
       
