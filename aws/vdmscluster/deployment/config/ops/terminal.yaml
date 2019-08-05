@@ -1,0 +1,16 @@
+template_path: templates/terminal.json
+
+parameters:
+  KeyPairName: testingserverkeypair
+  DomainAdminPassword: Nhy6Mju7
+  VPCID: vpc-0d4dd67070467ba70 #!stack_output backbone::VPC
+  TerminalCIDR: 0.0.0.0/0
+  PublicSubnet1ID:  subnet-0e7ddd689d30aedca #!stack_output backbone::PublicSubnet1
+  DomainMemberSGID: sg-02caa2a98295da16d #!stack_output securitygroups::DomainMemberSGID
+  PublicSubnet2ID: subnet-00a66c2491c74dc4a #!stack_output backbone::PublicSubnet2
+  # PublicSubnet3ID: subnet-0c9a3e1ffa14ccd2d #!stack_output backbone::PublicSubnet3
+  QSS3BucketName: ocregistryoc
+  DomainDNSName: scloud.com
+  DomainNetBIOSName: ARGUSRG
+  DomainAdminUser: salam
+  #QSS3KeyPrefix: quickstart-microsoft-utilities
