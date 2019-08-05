@@ -1,0 +1,8 @@
+template_path: templates/dynamodb.json
+parameters:
+  ProductName: vdmscluster
+  EnvironmentName: ops
+  PartitionKeyName: "Name"
+  SortKeyName: "Id"
+  TableName: "testingdynamodb"
+  TimeToLiveAttributeName: "ttldynamodb"

@@ -1,0 +1,257 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description": "This template deploys dynamodb managed service",
+  "Parameters": {
+    "ProductName": {
+      "Description": "The Product Name, that we tag with every resource , so that we can track resources for products",
+      "Type": "String"
+    },
+    "EnvironmentName": {
+      "Description": "An environment name that will be prefixed to resource names",
+      "Type": "String"
+    },
+    "PartitionKeyName": {
+      "Description": "Name of the partition key.",
+      "Type": "String"
+    },
+    "PartitionKeyType": {
+      "Description": "Type of the partition key.",
+      "Type": "String",
+      "Default": "S",
+      "AllowedValues": [
+        "S",
+        "N",
+        "B"
+      ]
+    },
+    "SortKeyName": {
+      "Description": "Optional name of the sort key.",
+      "Type": "String",
+      "Default": ""
+    },
+    "SortKeyType": {
+      "Description": "Type of the sort key (if SortKeyName is set).",
+      "Type": "String",
+      "Default": "N",
+      "AllowedValues": [
+        "S",
+        "N",
+        "B"
+      ]
+    },
+    "TableName": {
+      "Description": "Optional name of the table (auto generated if not set).",
+      "Type": "String",
+      "Default": ""
+    },
+    "BillingAndScalingMode": {
+      "Description": "Specify how you are charged for read and write throughput and how you manage capacity.",
+      "Type": "String",
+      "Default": "PROVISIONED",
+      "AllowedValues": [
+        "PROVISIONED",
+        "ONDEMAND"
+      ]
+    },
+    "Encryption": {
+      "Description": "Enable server side encryption using KMS (AWS managed) CMK.",
+      "Type": "String",
+      "Default": false,
+      "AllowedValues": [
+          "aws",
+          false
+      ]
+    },
+    "TimeToLiveAttributeName": {
+      "Description": "Optional name of the Time to Live attribute used to store the expiration time (unix timestamp in seconds)",
+      "Type": "String",
+      "Default": ""
+    },
+    "StreamViewType": {
+      "Description": "Determines the information that the stream captures when an item in the table is modified.",
+      "Type": "String",
+      "Default": "NEW_AND_OLD_IMAGES",
+      "AllowedValues": [
+        "DISABLED",
+        "KEYS_ONLY",
+        "NEW_IMAGE",
+        "OLD_IMAGE",
+        "NEW_AND_OLD_IMAGES"
+      ]
+    },
+    "PointInTimeRecoveryEnabled": {
+      "Description": "Point in time recovery",
+      "Type": "String",
+      "Default": "False",
+      "AllowedValues": ["True","False"]
+    }
+  },
+  "Resources" : {
+    "ReadCapacityScalableTarget": {
+      "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+      "Properties": {
+        "MaxCapacity": 15,
+        "MinCapacity": 5,
+        "ResourceId": { "Fn::Join": [
+          "/",
+          [
+            "table",
+            { "Ref": "myDynamoDBTable" }
+          ]
+        ] },
+        "RoleARN": {
+          "Fn::GetAtt": ["ScalingRole", "Arn"]
+        },
+        "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
+        "ServiceNamespace": "dynamodb"
+      }
+    },
+    "WriteCapacityScalableTarget": {
+      "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+      "Properties": {
+        "MaxCapacity": 15,
+        "MinCapacity": 5,
+        "ResourceId": { "Fn::Join": [
+          "/",
+          [
+            "table",
+            { "Ref": "myDynamoDBTable" }
+          ]
+        ] },
+        "RoleARN": {
+          "Fn::GetAtt": ["ScalingRole", "Arn"]
+        },
+        "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
+        "ServiceNamespace": "dynamodb"
+      }
+    },
+    "ScalingRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "application-autoscaling.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyName": "root",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "dynamodb:DescribeTable",
+                    "dynamodb:UpdateTable",
+                    "cloudwatch:PutMetricAlarm",
+                    "cloudwatch:DescribeAlarms",
+                    "cloudwatch:GetMetricStatistics",
+                    "cloudwatch:SetAlarmState",
+                    "cloudwatch:DeleteAlarms"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    
+    "myDynamoDBTable" : {
+      "Type" : "AWS::DynamoDB::Table",
+      "Properties" : {
+        "AttributeDefinitions" : [
+          {
+            "AttributeName" : {"Ref":"PartitionKeyName"},
+            "AttributeType" : {"Ref":"PartitionKeyType"}
+          },
+          {
+            "AttributeName" : {"Ref":"SortKeyName"},
+            "AttributeType" : {"Ref":"SortKeyType"}
+          }
+        ],
+        "KeySchema" : [
+          {
+            "AttributeName" : {"Ref":"PartitionKeyName"},
+            "KeyType" : "HASH"
+          },
+          {
+            "AttributeName" : {"Ref":"SortKeyName"},
+            "KeyType" : "RANGE"
+          }
+        ],
+        "PointInTimeRecoverySpecification": {
+          "PointInTimeRecoveryEnabled" : {"Ref": "PointInTimeRecoveryEnabled"}
+        },
+        "ProvisionedThroughput" : {
+          "ReadCapacityUnits" : "5",
+          "WriteCapacityUnits" : "5"
+        },
+        "TableName" : {"Ref": "TableName"},
+        "BillingMode": {"Ref": "BillingAndScalingMode"},
+        "SSESpecification": {
+          "SSEEnabled" :{"Ref": "Encryption"}
+        },
+        "TimeToLiveSpecification": {
+          "AttributeName" : {"Ref": "TimeToLiveAttributeName" },
+          "Enabled" : "True"
+        },
+        "StreamSpecification": {
+          "StreamViewType" : {"Ref": "StreamViewType"}
+        }        
+      }
+    },
+    "WriteScalingPolicy": {
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+      "Properties": {
+        "PolicyName": "WriteAutoScalingPolicy",
+        "PolicyType": "TargetTrackingScaling",
+        "ScalingTargetId": {
+          "Ref": "WriteCapacityScalableTarget"
+        },
+        "TargetTrackingScalingPolicyConfiguration": {
+          "TargetValue": 50.0,
+          "ScaleInCooldown": 60,
+          "ScaleOutCooldown": 60,
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "DynamoDBWriteCapacityUtilization"
+          }
+        }
+      }
+    },
+    "ReadScalingPolicy": {
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+      "Properties": {
+        "PolicyName": "ReadAutoScalingPolicy",
+        "PolicyType": "TargetTrackingScaling",
+        "ScalingTargetId": {
+          "Ref": "ReadCapacityScalableTarget"
+        },
+        "TargetTrackingScalingPolicyConfiguration": {
+          "TargetValue": 50.0,
+          "ScaleInCooldown": 60,
+          "ScaleOutCooldown": 60,
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "DynamoDBReadCapacityUtilization"
+          }
+        }
+      }
+    }
+  }
+}
+
+         

@@ -1,0 +1,101 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "This Template deploys the appmesh resource",
+    "Parameters": {
+      "ProductName": {
+        "Description": "The Product Name, that we tag with every resource , so that we can track resources for products",
+        "Type": "String"
+      },
+      "EnvironmentName": {
+        "Description": "An environment name that will be prefixed to resource names",
+        "Type": "String"
+      },
+      "MeshName":{
+        "Type":"String"
+      }
+    },
+    "Resources": {   
+        "Mesh": {
+            "Type": "AWS::AppMesh::Mesh",
+            "Properties": {
+                "MeshName": {"Ref": "MeshName"},
+                "Spec": {
+                    "EgressFilter": {
+                    "Type": "ALLOW_ALL"
+                    }
+                }
+            }
+        },
+        "VirtualNode": {
+            "Type": "AWS::AppMesh::VirtualNode",
+            "Properties": {
+                "VirtualNodeName": "TestNode",
+                "MeshName": {"Ref": "MeshName"},
+                "Spec": {
+                    "Listeners": [
+                        {
+                        "HealthCheck": {
+                            "HealthyThreshold": 2,
+                            "IntervalMillis": 5000,
+                            "Path": "/",
+                            "Port": 80,
+                            "Protocol": "http",
+                            "TimeoutMillis": 2000,
+                            "UnhealthyThreshold": 2
+                        },
+                        "PortMapping": {
+                            "Port": 80,
+                            "Protocol": "http"
+                        }
+                        }
+                    ],
+                    "ServiceDiscovery": {
+                        "DNS": {
+                        "Hostname": "serviceA.mymesh.local"
+                        }
+                    }
+                }
+            }
+        },
+        "VirtualRouter": {
+            "Type": "AWS::AppMesh::VirtualRouter",
+            "Properties": {
+            "VirtualRouterName": "TestVirtualRouter",
+            "MeshName": {"Ref": "MeshName"},
+            "Spec": { 
+                "Listeners": [ {
+                    "PortMapping": { 
+                        "Port": 80, 
+                        "Protocol": "http" 
+                        } 
+                    } ] 
+                }
+            }
+        },
+        "Route": {
+            "Type": "AWS::AppMesh::Route",
+            "Properties": {
+                "RouteName": "TestRoute",
+                "MeshName": {"Ref": "MeshName"},
+                "VirtualRouterName": "TestVirtualRouter",
+                "Spec": {
+                    "HttpRoute": {
+                        "Action": {
+                        "WeightedTargets": [
+                            {
+                                "VirtualNode": "TestNode",
+                                "Weight": 10
+                            }
+                        ]
+                        },
+                        "Match": {
+                            "Prefix": "/"
+                        }
+
+                    }
+                }
+            }
+        }
+    }   
+}
+    

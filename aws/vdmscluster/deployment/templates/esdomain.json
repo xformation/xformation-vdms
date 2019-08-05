@@ -1,0 +1,185 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "This Template deploys the ElasticsearchDomain resource",
+  "Parameters": {
+    "ProductName": {
+      "Description": "The Product Name, that we tag with every resource , so that we can track resources for products",
+      "Type": "String"
+    },
+    "EnvironmentName": {
+      "Description": "An environment name that will be prefixed to resource names",
+      "Type": "String"
+    },
+    "VPC": {
+      "Type": "AWS::EC2::VPC::Id",
+      "Description": "Choose which VPC the ES should be deployed to"
+    },
+    "subnetA":{
+      "Description": "Choose which subnet the ES should be deployed to",
+      "Type": "String"
+    },
+    "subnetB":{
+      "Description": "Choose which subnet the ES should be deployed to",
+      "Type": "String"
+    },
+    "DomainName" : {
+      "Description" : "User defined Elasticsearch Domain name",
+      "Type" : "String"
+    },
+    "EBSEnabled": {
+      "Description": "Specifies whether Amazon EBS volumes are attached to data nodes in the Amazon ES domain (some instance types come with instance store that you can use instead).",
+      "Type": "String",
+      "AllowedValues": [
+        true,
+        false
+      ],
+      "Default": true
+    },
+    "EBSVolumeSize": {
+      "Description": "The size of the EBS volume for each data node. The minimum and maximum size of an EBS volume depends on the EBS volume type and the instance type to which it is attached.",
+      "Type": "Number",
+      "Default": 20
+    },  
+    "ElasticsearchVersion": {
+      "Description": "Elasticsearch version",
+      "Type": "String",
+      "Default": "6.7",
+      "AllowedValues": [
+        "6.7",
+        "6.5",
+        "6.4",
+        "6.3",
+        "6.2",
+        "6.0",
+        "5.6",
+        "5.5"
+      ]
+    },
+    "ClusterInstanceCount": {
+      "Description": "The number of data nodes (instances) to use in the Amazon ES domain.",
+      "Type": "Number",
+      "Default": 2
+    },
+    "ClusterInstanceType": {
+      "Description": "The instance type for your data nodes.",
+      "Type": "String",
+      "Default": "r5.large.elasticsearch"
+    },
+    "DedicatedMasterCount": {
+      "Description": "The number of dedicated master nodes (instances) to use in the Amazon ES domain (set to 0 to disable dedicated master nodes).",
+      "Type": "Number",
+      "Default": 3
+    },
+    "DedicatedMasterType": {
+      "Description": "The instance type for your dedicated master nodes.",
+      "Type": "String",
+      "Default": "r5.large.elasticsearch"
+    }
+  },
+  "Resources": {
+    "ElasticsearchDomain": {
+      "Type": "AWS::Elasticsearch::Domain",
+      "Properties": {
+        "DomainName": { "Ref": "DomainName" },
+        "ElasticsearchVersion": { "Ref": "ElasticsearchVersion" },
+        "ElasticsearchClusterConfig": {
+          "DedicatedMasterEnabled":"true",
+          "InstanceCount":{"Ref": "ClusterInstanceCount"},
+          "ZoneAwarenessEnabled":"true",
+          "InstanceType": {"Ref": "ClusterInstanceType"},
+          "DedicatedMasterType": {"Ref": "DedicatedMasterType"},
+          "DedicatedMasterCount":{"Ref":"DedicatedMasterCount"}
+        },
+        "EBSOptions": {
+          "EBSEnabled": {"Ref":"EBSEnabled"},
+          "Iops": 0,
+          "VolumeSize": {"Ref":"EBSVolumeSize"},
+          "VolumeType": "gp2"
+        },
+        "EncryptionAtRestOptions" : {
+          "Enabled" : "True",
+          "KmsKeyId" : "700cefee-d021-43f1-8372-2b8a94261eaf"
+        },
+        "NodeToNodeEncryptionOptions" :{
+          "Enabled" : "True"
+        },
+        "SnapshotOptions": {
+          "AutomatedSnapshotStartHour": "0"
+        },
+        "AccessPolicies": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "*"
+              },
+              "Action": "es:*",
+              "Resource": "*"
+            }
+          ]
+        },
+        "AdvancedOptions": {
+          "rest.action.multi.allow_explicit_index": "true"
+        },
+        
+        "VPCOptions": {
+          "SubnetIds" : [
+            {"Ref" : "subnetA"},
+            {"Ref": "subnetB"}
+          ],
+          "SecurityGroupIds": [
+            {
+              "Ref": "mySecurityGroup"
+            }
+          ]
+        }
+      }   
+    },
+      
+  
+    "mySecurityGroup": {
+          "Type": "AWS::EC2::SecurityGroup",
+          "Properties": {
+            "GroupDescription": "Allows https",
+            "VpcId": {"Ref": "VPC"},
+            "GroupName": "httpssecuritygroupforES",
+            "SecurityGroupIngress": [
+              {
+                "FromPort": "443",
+                "IpProtocol": "tcp",
+                "ToPort": "443",
+                "CidrIp": "0.0.0.0/0"
+              }
+            ]
+          }
+        }
+      },
+    "Outputs": {
+      "DomainArn": {
+        "Value": {
+          "Fn::GetAtt": [
+            "ElasticsearchDomain",
+            "DomainArn"
+          ]
+        }
+      },
+      "DomainEndpoint": {
+        "Value": {
+          "Fn::GetAtt": [
+            "ElasticsearchDomain",
+            "DomainEndpoint"
+          ]
+        }
+      }
+    }
+  }
+
+
+
+
+
+
+
+
+  

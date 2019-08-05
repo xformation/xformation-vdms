@@ -1,0 +1,6 @@
+template_path: templates/appmesh.json
+
+parameters:
+  ProductName: vdmscluster
+  EnvironmentName: ops
+  MeshName: "mymesh"

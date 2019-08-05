@@ -1,0 +1,8 @@
+template_path: templates/esdomain.json
+parameters:
+  ProductName: vdmscluster
+  EnvironmentName: ops
+  DomainName: "estesting"
+  VPC: "vpc-0d4dd67070467ba70"
+  subnetA: "subnet-0e7ddd689d30aedca"
+  subnetB: "subnet-00a66c2491c74dc4a"
