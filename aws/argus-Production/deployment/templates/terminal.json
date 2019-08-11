@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "This template is intended to be installed into an existing VPC with two public subnets and an Active Directory domain. It will create an auto-scaling group of Terminal server instances in the public VPC subnets. **WARNING** This template creates Amazon EC2 Windows instance and related resources. You will be billed for the AWS resources used if you create a stack from this template. QS(0006)",
+    "Description": "This template is intended to be installed into an existing VPC with two public subnets and an Active Directory domain. It will create an auto-scaling group of RD Gateway instances in the public VPC subnets. **WARNING** This template creates Amazon EC2 Windows instance and related resources. You will be billed for the AWS resources used if you create a stack from this template. QS(0006)",
     "Metadata": {
         "AWS::CloudFormation::Interface": {
             "ParameterGroups": [
@@ -9,10 +9,11 @@
                         "default": "Network Configuration"
                     },
                     "Parameters": [
-                        "VPCID",
+                        "VpcId",
                         "PublicSubnet1ID",
                         "PublicSubnet2ID",
-                        "TerminalCIDR"
+                        "PublicSubnet3ID",
+                        "terminalCIDR"
                     ]
                 },
                 {
@@ -21,7 +22,7 @@
                     },
                     "Parameters": [
                         "KeyPairName",
-                        "TerminalInstanceType",
+                        "terminalInstanceType",
                         "LatestAmiId"
                     ]
                 },
@@ -42,7 +43,7 @@
                         "default": "Microsoft Remote Desktop Gateway Configuration"
                     },
                     "Parameters": [
-                        "NumberOfTerminalHosts"
+                        "NumberOfterminalHosts"
                     ]
                 },
                 {
@@ -77,8 +78,8 @@
                 "LatestAmiId": {
                     "default": "SSM Parameter to Grab Latest AMI ID"
                 },
-                "NumberOfTerminalHosts": {
-                    "default": "Number of Terminal Hosts"
+                "NumberOfterminalHosts": {
+                    "default": "Number of terminal Hosts"
                 },
                 "PublicSubnet1ID": {
                     "default": "Public Subnet 1 ID"
@@ -86,19 +87,22 @@
                 "PublicSubnet2ID": {
                     "default": "Public Subnet 2 ID"
                 },
+                "PublicSubnet3ID": {
+                    "default": "Public Subnet 3 ID"
+                },
                 "QSS3BucketName": {
                     "default": "Quick Start S3 Bucket Name"
                 },
                 "QSS3KeyPrefix": {
                     "default": "Quick Start S3 Key Prefix"
                 },
-                "TerminalInstanceType": {
-                    "default": "Terminal server Instance Type"
+                "terminalInstanceType": {
+                    "default": "Remote Desktop Gateway Instance Type"
                 },
-                "TerminalCIDR": {
-                    "default": "Allowed Terminal server External Access CIDR"
+                "terminalCIDR": {
+                    "default": "Allowed Remote Desktop Gateway External Access CIDR"
                 },
-                "VPCID": {
+                "VpcId": {
                     "default": "VPC ID"
                 }
             }
@@ -114,7 +118,7 @@
             "Type": "String"
         },
         "DomainAdminUser": {
-            "AllowedPattern": "[a-zA-Z0-9]*",
+            "AllowedPattern": "[a-zA-Z0-9_]*",
             "Default": "StackAdmin",
             "Description": "User name for the Domain Administrator. This is separate from the default \"Administrator\" account",
             "MaxLength": "25",
@@ -146,10 +150,10 @@
             "Type": "AWS::EC2::KeyPair::KeyName"
         },
         "LatestAmiId": {
-            "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
-            "Default": "/aws/service/ami-windows-latest/Windows_Server-2016-English-Full-Base"
+            "Type": "AWS::EC2::Image::Id",
+            "Default": "ami-0ed4bc6de754748ad"
         },
-        "NumberOfTerminalHosts": {
+        "NumberOfterminalHosts": {
             "AllowedValues": [
                 "1",
                 "2",
@@ -168,6 +172,10 @@
             "Description": "ID of the public subnet 2 you want to provision the second Remote Desktop Gateway into (e.g., subnet-e3246d8e)",
             "Type": "AWS::EC2::Subnet::Id"
         },
+        "PublicSubnet3ID": {
+            "Description": "ID of the public subnet 3 you want to provision the second Remote Desktop Gateway into (e.g., subnet-e3246d8e)",
+            "Type": "AWS::EC2::Subnet::Id"
+        },
         "QSS3BucketName": {
             "AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
             "ConstraintDescription": "Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
@@ -182,10 +190,10 @@
             "Description": "S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).",
             "Type": "String"
         },
-        "TerminalInstanceType": {
+        "terminalInstanceType": {
             "Description": "Amazon EC2 instance type for the Remote Desktop Gateway instances",
             "Type": "String",
-            "Default": "t2.medium",
+            "Default": "r4.large",
             "AllowedValues": [
                 "t2.medium",
                 "t2.large",
@@ -199,15 +207,16 @@
                 "m5.large",
                 "m5.xlarge",
                 "m5.2xlarge",
-                "m5.4xlarge"
+                "m5.4xlarge",
+                "r4.large"
             ]
         },
-        "TerminalCIDR": {
+        "terminalCIDR": {
             "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
             "Description": "Allowed CIDR Block for external access to the Remote Desktop Gateways",
             "Type": "String"
         },
-        "VPCID": {
+        "VpcId": {
             "Description": "ID of the VPC (e.g., vpc-0343606e)",
             "Type": "AWS::EC2::VPC::Id"
         }
@@ -243,7 +252,7 @@
                         "m4.4xlarge"
                     ],
                     {
-                        "Ref": "TerminalInstanceType"
+                        "Ref": "terminalInstanceType"
                     }
                 ]
             },
@@ -269,43 +278,43 @@
         }
     },
     "Conditions": {
-        "2TerminalCondition": {
+        "2terminalCondition": {
             "Fn::Or": [
                 {
                     "Fn::Equals": [
                         {
-                            "Ref": "NumberOfTerminalHosts"
+                            "Ref": "NumberOfterminalHosts"
                         },
                         "2"
                     ]
                 },
                 {
-                    "Condition": "3TerminalCondition"
+                    "Condition": "3terminalCondition"
                 },
                 {
-                    "Condition": "4TerminalCondition"
+                    "Condition": "4terminalCondition"
                 }
             ]
         },
-        "3TerminalCondition": {
+        "3terminalCondition": {
             "Fn::Or": [
                 {
                     "Fn::Equals": [
                         {
-                            "Ref": "NumberOfTerminalHosts"
+                            "Ref": "NumberOfterminalHosts"
                         },
                         "3"
                     ]
                 },
                 {
-                    "Condition": "4TerminalCondition"
+                    "Condition": "4terminalCondition"
                 }
             ]
         },
-        "4TerminalCondition": {
+        "4terminalCondition": {
             "Fn::Equals": [
                 {
-                    "Ref": "NumberOfTerminalHosts"
+                    "Ref": "NumberOfterminalHosts"
                 },
                 "4"
             ]
@@ -320,7 +329,7 @@
         }
     },
     "Resources": {
-        "TerminalHostRole": {
+        "terminalHostRole": {
             "Type": "AWS::IAM::Role",
             "Properties": {
                 "Policies": [
@@ -368,7 +377,7 @@
                                 }
                             ]
                         },
-                        "PolicyName": "Terminal-eip-policy"
+                        "PolicyName": "terminal-eip-policy"
                     }
                 ],
                 "Path": "/",
@@ -390,22 +399,22 @@
                 }
             }
         },
-        "TerminalHostProfile": {
+        "terminalHostProfile": {
             "Type": "AWS::IAM::InstanceProfile",
             "Properties": {
                 "Roles": [
                     {
-                        "Ref": "TerminalHostRole"
+                        "Ref": "terminalHostRole"
                     }
                 ],
                 "Path": "/"
             }
         },
-        "TerminalAutoScalingGroup": {
+        "terminalAutoScalingGroup": {
             "Type": "AWS::AutoScaling::AutoScalingGroup",
             "Properties": {
                 "LaunchConfigurationName": {
-                    "Ref": "TerminalLaunchConfiguration"
+                    "Ref": "terminalLaunchConfiguration"
                 },
                 "VPCZoneIdentifier": [
                     {
@@ -413,22 +422,25 @@
                     },
                     {
                         "Ref": "PublicSubnet2ID"
+                    },
+                    {
+                        "Ref": "PublicSubnet3ID"
                     }
                 ],
                 "MinSize": {
-                    "Ref": "NumberOfTerminalHosts"
+                    "Ref": "NumberOfterminalHosts"
                 },
                 "MaxSize": {
-                    "Ref": "NumberOfTerminalHosts"
+                    "Ref": "NumberOfterminalHosts"
                 },
                 "Cooldown": "300",
                 "DesiredCapacity": {
-                    "Ref": "NumberOfTerminalHosts"
+                    "Ref": "NumberOfterminalHosts"
                 },
                 "Tags": [
                     {
                         "Key": "Name",
-                        "Value": "Terminal",
+                        "Value": "awsRD1",
                         "PropagateAtLaunch": "true"
                     }
                 ]
@@ -436,20 +448,20 @@
             "CreationPolicy": {
                 "ResourceSignal": {
                     "Count": {
-                        "Ref": "NumberOfTerminalHosts"
+                        "Ref": "NumberOfterminalHosts"
                     },
                     "Timeout": "PT30M"
                 }
             }
         },
-        "TerminalLaunchConfiguration": {
+        "terminalLaunchConfiguration": {
             "Type": "AWS::AutoScaling::LaunchConfiguration",
             "Metadata": {
                 "AWS::CloudFormation::Authentication": {
                     "S3AccessCreds": {
                         "type": "S3",
                         "roleName": {
-                            "Ref": "TerminalHostRole"
+                            "Ref": "terminalHostRole"
                         },
                         "buckets": [
                             {
@@ -462,7 +474,7 @@
                     "configSets": {
                         "config": [
                             "setup",
-                            "join",
+                            "join",                            
                             "finalize"
                         ]
                     },
@@ -495,12 +507,12 @@
                                         [
                                             "[cfn-auto-reloader-hook]\n",
                                             "triggers=post.update\n",
-                                            "path=Resources.TerminalLaunchConfiguration.Metadata.AWS::CloudFormation::Init\n",
+                                            "path=Resources.terminalLaunchConfiguration.Metadata.AWS::CloudFormation::Init\n",
                                             "action=cfn-init.exe -v -c config -s ",
                                             {
                                                 "Ref": "AWS::StackId"
                                             },
-                                            " -r TerminalLaunchConfiguration",
+                                            " -r terminalLaunchConfiguration",
                                             " --region ",
                                             {
                                                 "Ref": "AWS::Region"
@@ -510,20 +522,24 @@
                                     ]
                                 }
                             },
+                            "C:\\cfn\\scripts\\disableie.ps1": {
+                                "source": "https://rdgwscripts.s3.eu-west-2.amazonaws.com/scripts/disableie.ps1",
+                                "authentication": "S3AccessCreds"
+                            },
                             "C:\\cfn\\scripts\\Unzip-Archive.ps1": {
-                                "source": "https://s3.amazonaws.com/ocregistryoc/submodules/quickstart-microsoft-utilities/scripts/Unzip-Archive.ps1",
+                                "source": "https://s3.eu-west-2.amazonaws.com/rdgwscripts/submodules/quickstart-microsoft-utilities/scripts/Unzip-Archive.ps1",
                                 "authentication": "S3AccessCreds"
                             },
                             "C:\\cfn\\modules\\AWSQuickStart.zip": {
-                                "source": "https://s3.amazonaws.com/ocregistryoc/submodules/quickstart-microsoft-utilities/modules/AWSQuickStart.zip",
+                                "source": "https://s3.eu-west-2.amazonaws.com/rdgwscripts/submodules/quickstart-microsoft-utilities/modules/AWSQuickStart.zip",
                                 "authentication": "S3AccessCreds"
                             },
                             "C:\\cfn\\scripts\\Join-Domain.ps1": {
-                                "source": "https://s3.amazonaws.com/ocregistryoc/submodules/quickstart-microsoft-utilities/scripts/Join-Domain.ps1",
+                                "source": "https://s3.eu-west-2.amazonaws.com/rdgwscripts/submodules/quickstart-microsoft-utilities/scripts/Join-Domain.ps1",
                                 "authentication": "S3AccessCreds"
                             },
                             "c:\\cfn\\scripts\\Initialize-RDGW.ps1": {
-                                "source": "https://s3.amazonaws.com/ocregistryoc/scripts/Initialize-RDGW.ps1",
+                                "source": "https://s3.eu-west-2.amazonaws.com/rdgwscripts/scripts/Initialize-RDGW.ps1",
                                 "authentication": "S3AccessCreds"
                             }
                         },
@@ -541,7 +557,7 @@
                         },
                         "commands": {
                             "set-dnsservers": {
-                                "command": "powershell.exe -Command \"Get-NetAdapter | Set-DnsClientServerAddress -ServerAddresses 100.64.3.21,8.8.8.8\"",
+                                "command": "powershell.exe -Command \"Get-NetAdapter | Set-DnsClientServerAddress -ServerAddresses 10.0.0.201,10.0.0.202\"",
                                 "waitAfterCompletion": "0"
                             },
                             "a-set-execution-policy": {
@@ -562,7 +578,7 @@
                                             {
                                                 "Ref": "AWS::StackName"
                                             },
-                                            "' -Resource 'TerminalAutoScalingGroup' -Region '",
+                                            "' -Resource 'terminalAutoScalingGroup' -Region '",
                                             {
                                                 "Ref": "AWS::Region"
                                             },
@@ -570,7 +586,7 @@
                                         ]
                                     ]
                                 },
-                                "waitAfterCompletion": "0"
+                                "waitAfterCompletion": "100"
                             }
                         }
                     },
@@ -618,13 +634,13 @@
                                 },
                                 "waitAfterCompletion": "0"
                             },
-                            "b-configure-rdgw": {
+                            "b-configure-terminal": {
                                 "command": {
                                     "Fn::Join": [
                                         "",
                                         [
                                             "powershell.exe -ExecutionPolicy RemoteSigned ",
-                                            "C:\\cfn\\scripts\\Initialize-Terminal.ps1 -ServerFQDN $($env:COMPUTERNAME + '.",
+                                            "C:\\cfn\\scripts\\Initialize-terminal.ps1 -ServerFQDN $($env:COMPUTERNAME + '.",
                                             {
                                                 "Ref": "DomainDNSName"
                                             },
@@ -656,23 +672,23 @@
                 },
                 "SecurityGroups": [
                     {
-                        "Ref": "TerminalServerSG"
+                        "Ref": "TSSG"
                     },
                     {
                         "Ref": "DomainMemberSGID"
                     }
                 ],
                 "IamInstanceProfile": {
-                    "Ref": "TerminalHostProfile"
+                    "Ref": "terminalHostProfile"
                 },
                 "InstanceType": {
-                    "Ref": "TerminalInstanceType"
+                    "Ref": "terminalInstanceType"
                 },
                 "BlockDeviceMappings": [
                     {
                         "DeviceName": "/dev/sda1",
                         "Ebs": {
-                            "VolumeSize": "50",
+                            "VolumeSize": "120",
                             "VolumeType": "gp2"
                         }
                     }
@@ -690,7 +706,7 @@
                                 {
                                     "Ref": "AWS::StackId"
                                 },
-                                " -r TerminalLaunchConfiguration",
+                                " -r terminalLaunchConfiguration",
                                 " --region ",
                                 {
                                     "Ref": "AWS::Region"
@@ -703,12 +719,12 @@
                 }
             }
         },
-        "TerminalServerSG": {
+        "TSSG": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
-                "GroupDescription": "Enable Terminal server RDP access from the Internet",
+                "GroupDescription": "Enable RDP access from the Internet",
                 "VpcId": {
-                    "Ref": "VPCID"
+                    "Ref": "VpcId"
                 },
                 "SecurityGroupIngress": [
                     {
@@ -716,7 +732,7 @@
                         "FromPort": "3389",
                         "ToPort": "3389",
                         "CidrIp": {
-                            "Ref": "TerminalCIDR"
+                            "Ref": "terminalCIDR"
                         }
                     },
                     {
@@ -724,7 +740,7 @@
                         "FromPort": "443",
                         "ToPort": "443",
                         "CidrIp": {
-                            "Ref": "TerminalCIDR"
+                            "Ref": "terminalCIDR"
                         }
                     },
                     {
@@ -732,7 +748,7 @@
                         "FromPort": "3391",
                         "ToPort": "3391",
                         "CidrIp": {
-                            "Ref": "TerminalCIDR"
+                            "Ref": "terminalCIDR"
                         }
                     },
                     {
@@ -740,7 +756,7 @@
                         "FromPort": "-1",
                         "ToPort": "-1",
                         "CidrIp": {
-                            "Ref": "TerminalCIDR"
+                            "Ref": "terminalCIDR"
                         }
                     }
                 ]
@@ -757,9 +773,10 @@
         }
     },
     "Outputs": {
-        "TerminalServerSGID": {
+
+        "TSSGID": {
             "Value": {
-                "Ref": "TerminalServerSG"
+                "Ref": "TSSG"
             },
             "Description": "Remote Desktop Gateway Security Group ID"
         }
