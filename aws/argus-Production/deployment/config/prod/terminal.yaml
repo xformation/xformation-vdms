@@ -11,6 +11,6 @@ parameters:
   QSS3BucketName: ocregistryoc
   DomainDNSName: argusrg.com
   DomainNetBIOSName: ARGUSRG
-  DomainAdminUser: aws_service
-  DomainAdminPassword: 8293Kwr64jR%
+  DomainAdminUser: #Domain user Name
+  DomainAdminPassword: #Password
   #QSS3KeyPrefix: quickstart-microsoft-utilities

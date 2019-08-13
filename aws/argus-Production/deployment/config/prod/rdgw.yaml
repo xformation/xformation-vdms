@@ -2,7 +2,7 @@ template_path: templates/rdgw.json
 
 parameters:
   KeyPairName: argus-key
-  DomainAdminPassword: 8293Kwr64jR%
+  DomainAdminPassword: #Password
   VpcId: !stack_output backbone::VPC
   RDGWCIDR: 0.0.0.0/0
   PublicSubnet1ID: !stack_output backbone::PublicSubnet1
@@ -12,6 +12,5 @@ parameters:
   QSS3BucketName: ocregistryoc
   DomainDNSName: argusrg.com
   DomainNetBIOSName: ARGUSRG
-  DomainAdminUser: aws_service
-  DomainAdminPassword: 8293Kwr64jR%
+  DomainAdminUser: #Domain Admin User
   #QSS3KeyPrefix: quickstart-microsoft-utilities
