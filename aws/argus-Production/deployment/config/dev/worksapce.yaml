@@ -1,6 +1,6 @@
 template_path: templates/workspace.json
 
 parameters:
-  BundleId: wsb-8vbljg4r6
-  DirectoryID: d-90671cca0d
-  UserName: salam
+  BundleId: #Enter Bundle ID -- > wsb-8vbljg4r6
+  DirectoryID: # AD Connector ID d-90671cca0d  
+  UserName: #Enter user name for the whom Workspace being created.

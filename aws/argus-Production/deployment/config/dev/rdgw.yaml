@@ -1,8 +1,7 @@
 template_path: templates/rdgw.json
 
 parameters:
-  KeyPairName: testingserverkeypair
-  DomainAdminPassword: Nhy6Mju7
+  KeyPairName: #Enter Key Pair Name
   VpcId: !stack_output backbone::VPC
   RDGWCIDR: 0.0.0.0/0
   PublicSubnet1ID: !stack_output backbone::PublicSubnet1
@@ -10,8 +9,8 @@ parameters:
   PublicSubnet2ID: !stack_output backbone::PublicSubnet2
   PublicSubnet3ID: !stack_output backbone::PublicSubnet3
   QSS3BucketName: ocregistryoc
-  DomainDNSName: scloud.com
-  DomainNetBIOSName: SCLOUD
-  DomainAdminUser: salam
-  DomainAdminPassword: Nhy6Mju7
+  DomainDNSName: #Enter Domain name --> example.com
+  DomainNetBIOSName: # Enter NetBios name --> EXAMPLE
+  DomainAdminUser: # Domain user name
+  DomainAdminPassword: # Domain USer Password
   #QSS3KeyPrefix: quickstart-microsoft-utilities

@@ -4,5 +4,5 @@ parameters:
   # ProductName: !stack_output backbone::ProductName
   VpcId:  !stack_output backbone::VPC
   # WhitelistIP: 0.0.0.0/0
-  IpAddressUS: 100.64.3.221
-  IpAddressUK: 100.64.3.231
+  IpAddressUS: #Firewall IP to create a VPN endpoint ex: 100.69.7.221
+  IpAddressUK: #Firewall IP to create a VPN endpoint ex: 100.69.4.131
