@@ -3,4 +3,4 @@ template_path: templates/workspace.json
 parameters:
   BundleId: # Bundle ID tsb-8vbljg4r6
   DirectoryID: # Directory ID
-  UserName: # provide user name
+  UserName: #Enter user name for the whom Workspace being created.
