@@ -1,0 +1,11 @@
+template_path: templates/backbone.json
+
+parameters:
+  ProductName: usarguscluster
+  EnvironmentName: dev
+  VpcCIDR: 192.168.205.0/24
+  PublicSubnet1CIDR: 192.168.205.0/26
+  PublicSubnet2CIDR: 192.168.205.64/26
+  PrivateSubnet1CIDR: 192.168.205.128/26
+  PrivateSubnet2CIDR: 192.168.205.192/26
+  KeyPairName: AR_webDev_WAF

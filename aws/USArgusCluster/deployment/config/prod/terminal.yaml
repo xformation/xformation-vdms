@@ -1,0 +1,16 @@
+template_path: templates/terminal.json
+
+parameters:
+  KeyPairName: #Enter Key-pair name
+  VpcId: !stack_output backbone::VPC
+  terminalCIDR: 0.0.0.0/0
+  PublicSubnet1ID: !stack_output backbone::PrivateSubnet1
+  DomainMemberSGID: !stack_output securitygroups::DomainMemberSGID
+  PublicSubnet2ID: !stack_output backbone::PrivateSubnet2
+  PublicSubnet3ID: !stack_output backbone::PrivateSubnet3
+  QSS3BucketName: ocregistryoc
+  DomainDNSName: #Enter Domain name example.com
+  DomainNetBIOSName: #enter domain name --> EXAMPLE
+  DomainAdminUser: #Domain user Name
+  DomainAdminPassword: #Password
+  #QSS3KeyPrefix: quickstart-microsoft-utilities
